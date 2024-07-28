@@ -20,9 +20,9 @@ const arrayofPointsToTxt = (arr, isThreeD) => {
     .join("\n");
 };
 
-const arrayOfPointsToJSON = (arr) => {
+const arrayOfPointsToJSON = (arr, name) => {
   const jsonString = JSON.stringify(arr);
-  return "const arr = " + jsonString;
+  return `const ${name} = ` + jsonString;
 };
 
 module.exports = { writeFile, arrayofPointsToTxt, arrayOfPointsToJSON };

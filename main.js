@@ -12,6 +12,17 @@ const {
   arrayOfPointsToJSON,
 } = require("./util/writeFile");
 
+function hasRepeatingElements(arr) {
+  const seen = new Set();
+  for (let element of arr) {
+    if (seen.has(element)) {
+      return true;
+    }
+    seen.add(element);
+  }
+  return false;
+}
+
 const { outliner } = require("./shapes/outliner");
 const main = async () => {
   const filePath = "./data/firstSet.bin";
@@ -25,9 +36,10 @@ const main = async () => {
   let length = Math.sqrt(pixelArray.length);
   // const pointsArr = pixelArrayToPoints(pixelArray);
   const twoDPixelArr = pixelArrTo2dPixelArr(pixelArray);
-
+  writeFile(arrayOfPointsToJSON(twoDPixelArr, "orig"), "./webViewer/orig.js");
   const ordering = outliner(twoDPixelArr, length);
-  writeFile(arrayOfPointsToJSON(ordering), "./webViewer/test.js");
+  console.log("repeating elements? " + hasRepeatingElements(ordering));
+  writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
 };
 
 main();

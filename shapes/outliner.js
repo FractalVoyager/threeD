@@ -91,10 +91,11 @@ const outliner = (arr, length) => {
   const findPoints = (startPoint, direction) => {
     // could also only have one call to this if I assing start to new
     let [newPoint, newDir] = findNextPoint(startPoint, direction);
-    let ordering = [newPoint];
+    // need to swap order to switch form array of rows to x,y canvas corod
+    let ordering = [[newPoint[1], newPoint[0]]];
     while (true) {
       [newPoint, newDir] = findNextPoint(newPoint, newDir);
-      ordering.push(newPoint);
+      ordering.push([newPoint[1], newPoint[0]]);
       if (newPoint[0] === startPoint[0] && newPoint[1] === startPoint[1]) {
         break;
       }
@@ -131,6 +132,8 @@ const outliner = (arr, length) => {
   const startPoint = findStartPoint();
   // the point you just came from is on the left, so you're moving right
   // so the first point to check is upper left which is at idx 5
+  // these points in y,x
+  // also in clockwise order
   const ordering = findPoints(startPoint, 5);
   return ordering;
 

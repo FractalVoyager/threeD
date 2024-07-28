@@ -2,7 +2,7 @@
 
 const drawFromPoints = (points) => {
   // Get the canvas element and its context
-  const canvas = document.getElementById("can");
+  const canvas = document.getElementById("outline-can");
   const ctx = canvas.getContext("2d");
 
   // Function to draw points on the canvas
@@ -10,7 +10,7 @@ const drawFromPoints = (points) => {
     arr.forEach((point) => {
       const [x, y] = point;
       ctx.fillStyle = "black"; // Set the color for the point
-      ctx.fillRect(y, x, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
+      ctx.fillRect(x, y, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
     });
   };
 
@@ -20,7 +20,7 @@ const drawFromPoints = (points) => {
 
 const drawFrom2dArr = (arr) => {
   // Get the canvas element and its context
-  const canvas = document.getElementById("can");
+  const canvas = document.getElementById("orig-can");
   const ctx = canvas.getContext("2d");
 
   // Function to draw 2D array of pixels on the canvas
@@ -40,6 +40,5 @@ const drawFrom2dArr = (arr) => {
   drawPixels(arr);
 };
 
-// drawFrom2dArr(arr);
-console.log(arr);
-drawFromPoints(arr);
+drawFrom2dArr(orig);
+drawFromPoints(outline);
