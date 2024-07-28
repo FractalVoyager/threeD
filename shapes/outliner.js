@@ -88,14 +88,23 @@ const outliner = (arr, length) => {
     },
   ];
 
-  let count = 0;
-  const findNextPoint = (lastPoint, direction) => {
-    count++;
-    console.log(count);
-    // want to check adjs in order (clockwise) starting at direction (what direction the last point was found at)
-    if (lastPoint === startPoint) {
-      console.log("FOUND");
+  const findPoints = (startPoint, direction) => {
+    // could also only have one call to this if I assing start to new
+    let [newPoint, newDir] = findNextPoint(startPoint, direction);
+    let ordering = [newPoint];
+    while (true) {
+      [newPoint, newDir] = findNextPoint(newPoint, newDir);
+      ordering.push(newPoint);
+      if (newPoint[0] === startPoint[0] && newPoint[1] === startPoint[1]) {
+        break;
+      }
     }
+    return ordering;
+  };
+
+  // stack overflow
+  const findNextPoint = (lastPoint, direction) => {
+    // want to check adjs in order (clockwise) starting at direction (what direction the last point was found at)
     for (let i = direction; i <= direction + 6; i++) {
       let dir = i % 8;
       // point we want
@@ -107,10 +116,11 @@ const outliner = (arr, length) => {
         // which is the opposite of current current then up one, which is where this comes from
         let newDir = (dir + 5) % 8;
         // recursive call
-        findNextPoint(dirPoint, newDir);
+        return [dirPoint, newDir];
       }
     }
     // found point with no adjs to black squares other than the one we came from
+    console.log("logging false");
     return false;
   };
 
@@ -121,9 +131,10 @@ const outliner = (arr, length) => {
   const startPoint = findStartPoint();
   // the point you just came from is on the left, so you're moving right
   // so the first point to check is upper left which is at idx 5
-  console.log(startPoint, "start");
-  console.log();
-  console.log(findNextPoint(startPoint, 5));
+  const ordering = findPoints(startPoint, 5);
+  return ordering;
+
+  // console.log(findNextPoint(startPoint, 5));
 };
 
 // old

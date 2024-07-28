@@ -26,8 +26,8 @@ const main = async () => {
   // const pointsArr = pixelArrayToPoints(pixelArray);
   const twoDPixelArr = pixelArrTo2dPixelArr(pixelArray);
 
-  outliner(twoDPixelArr, length);
-  // writeFile(arrayOfPointsToJSON(twoDPixelArr), "./webViewer/cords.js");
+  const ordering = outliner(twoDPixelArr, length);
+  writeFile(arrayOfPointsToJSON(ordering), "./webViewer/test.js");
 };
 
 main();
