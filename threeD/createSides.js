@@ -69,13 +69,14 @@ const createSides = (bottom, top) => {
     add2DPointsToGraph(topPoint, bottomPoint);
   });
 
-  console.log(Object.keys(graph.adjacencyList).length);
-  console.log(largerPlane.length + smallerPlane.length);
-  Object.entries(graph.adjacencyList).forEach((obj) => {
-    if (obj[1].length === 2) {
-      console.log("key", obj[0], "val", obj[1]);
-    }
-  });
+  // test
+  // console.log(Object.keys(graph.adjacencyList).length);
+  // console.log(largerPlane.length + smallerPlane.length);
+  // Object.entries(graph.adjacencyList).forEach((obj) => {
+  //   if (obj[1].length === 2) {
+  //     console.log("key", obj[0], "val", obj[1]);
+  //   }
+  // });
 };
 
 class Graph {
@@ -115,6 +116,35 @@ class Graph {
     ) {
       this.adjacencyList[vertex2Key].push(vertex1);
     }
+  }
+
+  // think these two will be useful for constructing the triangles
+  removeEdge(vertex1, vertex2) {
+    const vertex1Key = JSON.stringify(vertex1);
+    const vertex2Key = JSON.stringify(vertex2);
+    if (this.adjacencyList[vertex1Key]) {
+      this.adjacencyList[vertex1Key] = this.adjacencyList[vertex1Key].filter(
+        (v) => JSON.stringify(v) !== vertex2Key
+      );
+    }
+    if (this.adjacencyList[vertex2Key]) {
+      this.adjacencyList[vertex2Key] = this.adjacencyList[vertex2Key].filter(
+        (v) => JSON.stringify(v) !== vertex1Key
+      );
+    }
+  }
+
+  // Remove a vertex and all its edges
+  removeVertex(vertex) {
+    const vertexKey = JSON.stringify(vertex);
+    if (!this.adjacencyList[vertexKey]) {
+      return;
+    }
+    while (this.adjacencyList[vertexKey].length) {
+      const adjacentVertex = this.adjacencyList[vertexKey].pop();
+      this.removeEdge(vertex, adjacentVertex);
+    }
+    delete this.adjacencyList[vertexKey];
   }
 }
 
