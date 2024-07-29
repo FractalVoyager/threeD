@@ -17,6 +17,8 @@ const { earClip, unOptimizedEarClip } = require("./shapes/earClipTriangulate");
 
 const { newmakeStl } = require("./stl/makeStil");
 
+const { createSides } = require("./threeD/createSides");
+
 const arraysAreDeepEqual = (arr1, arr2) => {
   if (arr1.length !== arr2.length) {
     return false;
@@ -46,8 +48,8 @@ function hasRepeatingElements(arr) {
   return false;
 }
 
-const main = async () => {
-  const filePath = "./data/firstSet.bin";
+const makeTriangles = async (filePath) => {
+  // const filePath = "./data/firstSet.bin";
 
   const data = await readBinaryFile(filePath);
   const pixelArray = convertByteArrayToPixelArray(data);
@@ -86,6 +88,18 @@ const main = async () => {
   const stlStr = newmakeStl(threeDtris, length);
   // console.log(stlStr);
   writeFile(stlStr, "./data/stl.stl");
+
+  return { points: ordering, tris: oldTrinagles };
 };
 
-main();
+const processCrosses = async () => {
+  let crosses = [];
+  // const crosses = ["firstSet", "secondSet"].map((name) => {
+  //   return await makeTriangles("./data/" + name + ".bin");
+  // });
+  let bottom = await makeTriangles("./data/firstSet.bin");
+  let top = await makeTriangles("./data/secondSet.bin");
+  createSides(bottom, top);
+};
+
+processCrosses();
