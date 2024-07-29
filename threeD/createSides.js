@@ -8,10 +8,21 @@ function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
+// once the graph is all built up
+const processGraph = (graph) => {
+  // probably can add the traingles as we go
+  Object.entries(graph).forEach((obj) => {
+    let point = obj[0];
+    let adjs = obj[1];
+    console.log(point, adjs);
+  });
+};
+
 // ponts, tris
 const createSides = (bottom, top) => {
-  const findClosestInSmallerPlane = (point) => {
-    let distances = smallerPlane.map((p) => {
+  const findClosestInPlane = (point, isLargerPlane) => {
+    let plane = isLargerPlane ? largerPlane : smallerPlane;
+    let distances = plane.map((p) => {
       let xdis = p[0] - point[0];
       let ydis = p[1] - point[1];
       return Math.sqrt(xdis * xdis + ydis * ydis);
@@ -25,7 +36,7 @@ const createSides = (bottom, top) => {
         closestPointIdx = idx;
       }
     });
-    return smallerPlane[closestPointIdx];
+    return plane[closestPointIdx];
   };
 
   const graph = new Graph();
@@ -59,15 +70,31 @@ const createSides = (bottom, top) => {
   const largerPlane = topIsLarger ? top.points : bottom.points;
   const smallerPlane = topIsLarger ? bottom.points : top.points;
 
-  connectAll(top.points, true);
-  connectAll(bottom.points, false);
-
+  // step 3
   largerPlane.forEach((point) => {
-    let connector = findClosestInSmallerPlane(point);
+    let connector = findClosestInPlane(point, false);
     let topPoint = topIsLarger ? point : connector;
     let bottomPoint = topIsLarger ? connector : point;
     add2DPointsToGraph(topPoint, bottomPoint);
   });
+
+  // go through points in smaller plane
+  smallerPlane.forEach((point) => {
+    if (!graph.hasVertex([point[0], point[1], topIsLarger ? 0 : 1])) {
+      let connector = findClosestInPlane(point, true);
+      let topPoint = topIsLarger ? connector : point;
+      let bottomPoint = topIsLarger ? point : connector;
+      add2DPointsToGraph(topPoint, bottomPoint);
+    }
+  });
+
+  // need to connect adj points in each plane
+  connectAll(top.points, true);
+  connectAll(bottom.points, false);
+
+  // smallerPlane.forEach(())
+
+  // processGraph(graph);
 
   // test
   // console.log(Object.keys(graph.adjacencyList).length);
@@ -145,6 +172,12 @@ class Graph {
       this.removeEdge(vertex, adjacentVertex);
     }
     delete this.adjacencyList[vertexKey];
+  }
+
+  // Check if a vertex exists in the graph
+  hasVertex(vertex) {
+    const vertexKey = JSON.stringify(vertex);
+    return !!this.adjacencyList[vertexKey];
   }
 }
 
