@@ -13,7 +13,27 @@ const {
 } = require("./util/writeFile");
 
 const { outliner } = require("./shapes/outliner");
-const { earClip } = require("./shapes/earClipTriangulate");
+const { earClip, unOptimizedEarClip } = require("./shapes/earClipTriangulate");
+
+const { newmakeStl } = require("./stl/makeStil");
+
+const arraysAreDeepEqual = (arr1, arr2) => {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < arr1.length; i++) {
+    if (Array.isArray(arr1[i]) && Array.isArray(arr2[i])) {
+      if (!arraysAreDeepEqual(arr1[i], arr2[i])) {
+        return false;
+      }
+    } else if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+};
 
 function hasRepeatingElements(arr) {
   const seen = new Set();
@@ -31,21 +51,38 @@ const main = async () => {
 
   const data = await readBinaryFile(filePath);
   const pixelArray = convertByteArrayToPixelArray(data);
-  // console.log(pixelArray);
-  // console.log(checker(pixelArray));
-  // console.log(pixelArray.length);
+
   // length of canvas
   let length = Math.sqrt(pixelArray.length);
   // const pointsArr = pixelArrayToPoints(pixelArray);
   const twoDPixelArr = pixelArrTo2dPixelArr(pixelArray);
   writeFile(arrayOfPointsToJSON(twoDPixelArr, "orig"), "./webViewer/orig.js");
   const ordering = outliner(twoDPixelArr, length);
-  console.log("repeating elements? " + hasRepeatingElements(ordering));
+  console.log(
+    "repeating elements in ordering? " + hasRepeatingElements(ordering)
+  );
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
+
+  const oldTrinagles = unOptimizedEarClip(ordering);
   const triangles = earClip(ordering);
-  console.log("tri repeats", hasRepeatingElements(triangles));
-  console.log("tris", triangles.length);
+  console.log("tri repeats? " + hasRepeatingElements(triangles));
+
+  console.log(
+    "triangle arrays are same? " + arraysAreDeepEqual(oldTrinagles, triangles)
+  );
+  console.log(
+    "correct number of tris? " +
+      (ordering.length - triangles.length === 2 ? true : false)
+  );
   writeFile(arrayOfPointsToJSON(triangles, "triangles"), "./webViewer/tris.js");
+  const threeDtris = oldTrinagles.map((tri) => {
+    return tri.map((point) => {
+      return [point[0], point[1], 0];
+    });
+  });
+  const stlStr = newmakeStl(threeDtris, length);
+  // console.log(stlStr);
+  writeFile(writeFile(stlStr, "./data/stl.stl"));
 };
 
 main();

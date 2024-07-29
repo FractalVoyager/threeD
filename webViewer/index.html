@@ -14,6 +14,40 @@
     <canvas id="orig-can" width="400" height="400"></canvas>
     <canvas id="outline-can" width="400" height="400"></canvas>
     <canvas id="tris-can" width="400" height="400"></canvas>
+    <button id="download-orig-btn">Download Orig Canvas</button>
+    <button id="download-outline-btn">Download Outline Canvas</button>
+    <button id="download-tris-btn">Download Triangles Canvas</button>
+
+    <script>
+      document
+        .getElementById("download-orig-btn")
+        .addEventListener("click", () => {
+          downloadCanvas("orig-can", "orig-canvas.png");
+        });
+
+      document
+        .getElementById("download-outline-btn")
+        .addEventListener("click", () => {
+          downloadCanvas("outline-can", "outline-canvas.png");
+        });
+
+      document
+        .getElementById("download-tris-btn")
+        .addEventListener("click", () => {
+          downloadCanvas("tris-can", "tris-canvas.png");
+        });
+    </script>
+
+    <script>
+      // Function to handle canvas download
+      const downloadCanvas = (canvasId, filename) => {
+        const canvas = document.getElementById(canvasId);
+        const link = document.createElement("a");
+        link.download = filename;
+        link.href = canvas.toDataURL(); // Generate data URL from canvas
+        link.click(); // Trigger the download
+      };
+    </script>
 
     <script src="orig.js"></script>
     <script src="outline.js"></script>
