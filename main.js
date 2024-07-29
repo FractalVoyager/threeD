@@ -74,7 +74,10 @@ const main = async () => {
     "correct number of tris? " +
       (ordering.length - triangles.length === 2 ? true : false)
   );
-  writeFile(arrayOfPointsToJSON(triangles, "triangles"), "./webViewer/tris.js");
+  writeFile(
+    arrayOfPointsToJSON(oldTrinagles, "triangles"),
+    "./webViewer/tris.js"
+  );
   const threeDtris = oldTrinagles.map((tri) => {
     return tri.map((point) => {
       return [point[0], point[1], 0];
@@ -82,7 +85,7 @@ const main = async () => {
   });
   const stlStr = newmakeStl(threeDtris, length);
   // console.log(stlStr);
-  writeFile(writeFile(stlStr, "./data/stl.stl"));
+  writeFile(stlStr, "./data/stl.stl");
 };
 
 main();

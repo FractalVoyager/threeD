@@ -47,8 +47,6 @@ const newmakeStl = (triangles, width) => {
 
     // Compute the normal
     let norm = calcNorm(v0, v1, v2);
-    console.log(v0, v1, v2);
-    console.log(norm);
 
     // Extrude vertices
     let extrudedFront = extrudeVertices(tri, norm, width / 2);
