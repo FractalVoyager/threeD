@@ -12,6 +12,9 @@ const {
   arrayOfPointsToJSON,
 } = require("./util/writeFile");
 
+const { outliner } = require("./shapes/outliner");
+const { earClip } = require("./shapes/earClipTriangulate");
+
 function hasRepeatingElements(arr) {
   const seen = new Set();
   for (let element of arr) {
@@ -23,7 +26,6 @@ function hasRepeatingElements(arr) {
   return false;
 }
 
-const { outliner } = require("./shapes/outliner");
 const main = async () => {
   const filePath = "./data/firstSet.bin";
 
@@ -40,6 +42,10 @@ const main = async () => {
   const ordering = outliner(twoDPixelArr, length);
   console.log("repeating elements? " + hasRepeatingElements(ordering));
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
+  const triangles = earClip(ordering);
+  console.log("tri repeats", hasRepeatingElements(triangles));
+  console.log("tris", triangles.length);
+  writeFile(arrayOfPointsToJSON(triangles, "triangles"), "./webViewer/tris.js");
 };
 
 main();

@@ -40,5 +40,28 @@ const drawFrom2dArr = (arr) => {
   drawPixels(arr);
 };
 
+const drawTrinagles = (tris) => {
+  const canvas = document.getElementById("tris-can");
+  const ctx = canvas.getContext("2d");
+  ctx.lineWidth = 1;
+
+  const drawTrinagle = (tri) => {
+    ctx.beginPath();
+    ctx.moveTo(tri[0][0], tri[0][1]);
+    // line from first to second
+    ctx.lineTo(tri[1][0], tri[1][1]);
+    // line from first to third
+    ctx.lineTo(tri[2][0], tri[2][1]);
+    // line from third to first
+    ctx.closePath();
+    ctx.stroke();
+  };
+
+  tris.forEach((tri) => {
+    drawTrinagle(tri);
+  });
+};
+
 drawFrom2dArr(orig);
 drawFromPoints(outline);
+drawTrinagles(triangles);
