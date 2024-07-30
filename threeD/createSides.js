@@ -129,11 +129,15 @@ const squaresToTris = (graph) => {
 
     difference.forEach((strandedPoint) => {
       // only want to draw lines between top plane and bottom plane
-      // every vertex here must have an adj that is adj to one of the initial adjs BIG CLAIM - though through it a lot but a proof would be nice and tested below
+      // every vertex here must have an adj that is adj to one of the initial adjs BIG CLAIM - thought through it a lot but a proof would be nice and tested below, test passed
       let strandedAjs = graph.getAdjs(strandedPoint);
-      let myin = false;
+
+      // remove original point
+      strandedAjs = strandedAjs.filter(
+        (adj) => JSON.stringify(adj) !== vertexKey
+      );
       // console.log("stranded", strandedPoint);
-      // console.log("its adjs", strandedAjs);
+      // console.log("its adjs without orig", strandedAjs);
       // console.log("original adjs", adjs);
       // console.log("original point", vertex);
 
@@ -142,14 +146,15 @@ const squaresToTris = (graph) => {
       strandedAjs.forEach((strandedAdj) => {
         let strandedAdjAdjs = graph.getAdjs(strandedAdj);
         strandedAdjAdjs.forEach((adj) => {
-          if (adjs.indexOf(adj) !== -1) {
-            myin = true;
+          let connectorIdx = adjs.indexOf(adj);
+          if (connectorIdx !== -1) {
+            console.log("stranded adj connector", strandedAdj);
+            // console.log("connection found");
+            // console.log("adj of stranded", adj);
           }
         });
       });
-      if (myin !== true) {
-        console.log(myin);
-      }
+
       // console.log(myin);
     });
   });
