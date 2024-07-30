@@ -8,13 +8,150 @@ function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
+class Graph {
+  constructor() {
+    this.adjacencyList = {};
+  }
+
+  // Add a new vertex to the graph
+  addVertex(vertex) {
+    const vertexKey = JSON.stringify(vertex);
+    if (!this.adjacencyList[vertexKey]) {
+      this.adjacencyList[vertexKey] = [];
+    }
+  }
+
+  // Add an edge between two vertices
+  addEdge(vertex1, vertex2) {
+    const vertex1Key = JSON.stringify(vertex1);
+    const vertex2Key = JSON.stringify(vertex2);
+    if (!this.adjacencyList[vertex1Key]) {
+      this.addVertex(vertex1);
+    }
+    if (!this.adjacencyList[vertex2Key]) {
+      this.addVertex(vertex2);
+    }
+    if (
+      !this.adjacencyList[vertex1Key].some(
+        (v) => JSON.stringify(v) === vertex2Key
+      )
+    ) {
+      this.adjacencyList[vertex1Key].push(vertex2);
+    }
+    if (
+      !this.adjacencyList[vertex2Key].some(
+        (v) => JSON.stringify(v) === vertex1Key
+      )
+    ) {
+      this.adjacencyList[vertex2Key].push(vertex1);
+    }
+  }
+
+  getAdjsFromKey(vertexKey) {
+    return this.adjacencyList[vertexKey];
+  }
+
+  getAdjs(vertex) {
+    let vertexKey = JSON.stringify(vertex);
+    return this.getAdjsFromKey(vertexKey);
+  }
+
+  // think these two will be useful for constructing the triangles
+  removeEdge(vertex1, vertex2) {
+    const vertex1Key = JSON.stringify(vertex1);
+    const vertex2Key = JSON.stringify(vertex2);
+    if (this.adjacencyList[vertex1Key]) {
+      this.adjacencyList[vertex1Key] = this.adjacencyList[vertex1Key].filter(
+        (v) => JSON.stringify(v) !== vertex2Key
+      );
+    }
+    if (this.adjacencyList[vertex2Key]) {
+      this.adjacencyList[vertex2Key] = this.adjacencyList[vertex2Key].filter(
+        (v) => JSON.stringify(v) !== vertex1Key
+      );
+    }
+  }
+
+  // Remove a vertex and all its edges
+  removeVertex(vertex) {
+    const vertexKey = JSON.stringify(vertex);
+    if (!this.adjacencyList[vertexKey]) {
+      return;
+    }
+    while (this.adjacencyList[vertexKey].length) {
+      const adjacentVertex = this.adjacencyList[vertexKey].pop();
+      this.removeEdge(vertex, adjacentVertex);
+    }
+    delete this.adjacencyList[vertexKey];
+  }
+
+  // Check if a vertex exists in the graph
+  hasVertex(vertex) {
+    const vertexKey = JSON.stringify(vertex);
+    return !!this.adjacencyList[vertexKey];
+  }
+}
+
 // once the graph is all built up
-const processGraph = (graph) => {
+// this creates tris from squares
+const squaresToTris = (graph) => {
   // probably can add the traingles as we go
-  Object.entries(graph).forEach((obj) => {
-    let point = obj[0];
+
+  Object.entries(graph.adjacencyList).forEach((obj) => {
+    // step 1
     let adjs = obj[1];
-    console.log(point, adjs);
+    let vertex = JSON.parse(obj[0]);
+    let vertexKey = obj[0];
+    // step 2
+    let secondLevelAdjs = new Set();
+    adjs.forEach((firstLevelAdj) => {
+      graph.getAdjs(firstLevelAdj).forEach((secondLevelAdj) => {
+        secondLevelAdjs.add(JSON.stringify(secondLevelAdj));
+      });
+    });
+    secondLevelAdjs.delete(vertexKey);
+
+    // find all the original adjs that are not in the second level adjs
+    // if an element is in here, this means there is not a three cycle from vertex
+    // that includes this adj, i.e. needs a triangle
+    let difference = [];
+    adjs.forEach((firstLevelAdj) => {
+      if (!secondLevelAdjs.has(JSON.stringify(firstLevelAdj))) {
+        // in the difference
+        difference.push(firstLevelAdj);
+      }
+    });
+
+    // step 3
+    if (difference.length === 0) {
+      return;
+    }
+
+    difference.forEach((strandedPoint) => {
+      // only want to draw lines between top plane and bottom plane
+      // every vertex here must have an adj that is adj to one of the initial adjs BIG CLAIM - though through it a lot but a proof would be nice and tested below
+      let strandedAjs = graph.getAdjs(strandedPoint);
+      let myin = false;
+      // console.log("stranded", strandedPoint);
+      // console.log("its adjs", strandedAjs);
+      // console.log("original adjs", adjs);
+      // console.log("original point", vertex);
+
+      // console.log(strandedSecondLevelAjs, adjs);
+      // big claim test
+      strandedAjs.forEach((strandedAdj) => {
+        let strandedAdjAdjs = graph.getAdjs(strandedAdj);
+        strandedAdjAdjs.forEach((adj) => {
+          if (adjs.indexOf(adj) !== -1) {
+            myin = true;
+          }
+        });
+      });
+      if (myin !== true) {
+        console.log(myin);
+      }
+      // console.log(myin);
+    });
   });
 };
 
@@ -94,91 +231,16 @@ const createSides = (bottom, top) => {
 
   // smallerPlane.forEach(())
 
-  // processGraph(graph);
+  squaresToTris(graph);
 
   // test
-  // console.log(Object.keys(graph.adjacencyList).length);
-  // console.log(largerPlane.length + smallerPlane.length);
+  console.log(Object.keys(graph.adjacencyList).length);
+  console.log(largerPlane.length + smallerPlane.length);
   // Object.entries(graph.adjacencyList).forEach((obj) => {
-  //   if (obj[1].length === 2) {
+  //   if (obj[1].length === 7) {
   //     console.log("key", obj[0], "val", obj[1]);
   //   }
   // });
 };
-
-class Graph {
-  constructor() {
-    this.adjacencyList = {};
-  }
-
-  // Add a new vertex to the graph
-  addVertex(vertex) {
-    const vertexKey = JSON.stringify(vertex);
-    if (!this.adjacencyList[vertexKey]) {
-      this.adjacencyList[vertexKey] = [];
-    }
-  }
-
-  // Add an edge between two vertices
-  addEdge(vertex1, vertex2) {
-    const vertex1Key = JSON.stringify(vertex1);
-    const vertex2Key = JSON.stringify(vertex2);
-    if (!this.adjacencyList[vertex1Key]) {
-      this.addVertex(vertex1);
-    }
-    if (!this.adjacencyList[vertex2Key]) {
-      this.addVertex(vertex2);
-    }
-    if (
-      !this.adjacencyList[vertex1Key].some(
-        (v) => JSON.stringify(v) === vertex2Key
-      )
-    ) {
-      this.adjacencyList[vertex1Key].push(vertex2);
-    }
-    if (
-      !this.adjacencyList[vertex2Key].some(
-        (v) => JSON.stringify(v) === vertex1Key
-      )
-    ) {
-      this.adjacencyList[vertex2Key].push(vertex1);
-    }
-  }
-
-  // think these two will be useful for constructing the triangles
-  removeEdge(vertex1, vertex2) {
-    const vertex1Key = JSON.stringify(vertex1);
-    const vertex2Key = JSON.stringify(vertex2);
-    if (this.adjacencyList[vertex1Key]) {
-      this.adjacencyList[vertex1Key] = this.adjacencyList[vertex1Key].filter(
-        (v) => JSON.stringify(v) !== vertex2Key
-      );
-    }
-    if (this.adjacencyList[vertex2Key]) {
-      this.adjacencyList[vertex2Key] = this.adjacencyList[vertex2Key].filter(
-        (v) => JSON.stringify(v) !== vertex1Key
-      );
-    }
-  }
-
-  // Remove a vertex and all its edges
-  removeVertex(vertex) {
-    const vertexKey = JSON.stringify(vertex);
-    if (!this.adjacencyList[vertexKey]) {
-      return;
-    }
-    while (this.adjacencyList[vertexKey].length) {
-      const adjacentVertex = this.adjacencyList[vertexKey].pop();
-      this.removeEdge(vertex, adjacentVertex);
-    }
-    delete this.adjacencyList[vertexKey];
-  }
-
-  // Check if a vertex exists in the graph
-  hasVertex(vertex) {
-    const vertexKey = JSON.stringify(vertex);
-    return !!this.adjacencyList[vertexKey];
-  }
-}
 
 module.exports = { createSides };
