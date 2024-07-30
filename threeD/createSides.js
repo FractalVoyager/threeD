@@ -8,6 +8,12 @@ function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
+const get2dDistance = (a, b) => {
+  let xdis = a[0] - b[0];
+  let ydis = a[1] - b[1];
+  return Math.sqrt(xdis * xdis + ydis * ydis);
+};
+
 class Graph {
   constructor() {
     this.adjacencyList = {};
@@ -94,8 +100,10 @@ class Graph {
 
 // once the graph is all built up
 // this creates tris from squares
+
 const squaresToTris = (graph) => {
   // probably can add the traingles as we go
+  let misses = false;
 
   Object.entries(graph.adjacencyList).forEach((obj) => {
     // step 1
@@ -123,10 +131,9 @@ const squaresToTris = (graph) => {
     });
 
     // step 3
-    if (difference.length === 0) {
-      return;
+    if (difference.length > 0) {
+      misses = true;
     }
-
     difference.forEach((strandedPoint) => {
       // only want to draw lines between top plane and bottom plane
       // every vertex here must have an adj that is adj to one of the initial adjs BIG CLAIM - thought through it a lot but a proof would be nice and tested below, test passed
@@ -136,28 +143,29 @@ const squaresToTris = (graph) => {
       strandedAjs = strandedAjs.filter(
         (adj) => JSON.stringify(adj) !== vertexKey
       );
-      // console.log("stranded", strandedPoint);
-      // console.log("its adjs without orig", strandedAjs);
-      // console.log("original adjs", adjs);
-      // console.log("original point", vertex);
-
-      // console.log(strandedSecondLevelAjs, adjs);
-      // big claim test
+      //
+      // find adj of stranded point that is in the oppiste plane as vertex and closet to vertex
+      let closestAdj = null;
+      let cloestDistance = null;
       strandedAjs.forEach((strandedAdj) => {
-        let strandedAdjAdjs = graph.getAdjs(strandedAdj);
-        strandedAdjAdjs.forEach((adj) => {
-          let connectorIdx = adjs.indexOf(adj);
-          if (connectorIdx !== -1) {
-            console.log("stranded adj connector", strandedAdj);
-            // console.log("connection found");
-            // console.log("adj of stranded", adj);
+        // oppiste plane
+        if (strandedAdj[2] !== vertex[2]) {
+          let dist = get2dDistance(strandedAdj, vertex);
+          if (
+            cloestDistance === null ||
+            get2dDistance(strandedAdj, vertex) < cloestDistance
+          ) {
+            closestAdj = strandedAdj;
+            cloestDistance = dist;
           }
-        });
+        }
       });
-
-      // console.log(myin);
+      // connect to the vertex
+      graph.addEdge(closestAdj, vertex);
     });
   });
+
+  console.log(misses);
 };
 
 // ponts, tris
@@ -237,10 +245,11 @@ const createSides = (bottom, top) => {
   // smallerPlane.forEach(())
 
   squaresToTris(graph);
+  squaresToTris(graph);
 
   // test
-  console.log(Object.keys(graph.adjacencyList).length);
-  console.log(largerPlane.length + smallerPlane.length);
+  // console.log(Object.keys(graph.adjacencyList).length);
+  // console.log(largerPlane.length + smallerPlane.length);
   // Object.entries(graph.adjacencyList).forEach((obj) => {
   //   if (obj[1].length === 7) {
   //     console.log("key", obj[0], "val", obj[1]);
