@@ -97,8 +97,8 @@ const processCrosses = async () => {
   //   return await makeTriangles("./data/" + name + ".bin");
   // });
   let bottom = await makeTriangles("./data/firstSet.bin", 0);
-  let top = await makeTriangles("./data/secondSet.bin", 5);
-  let tris = createSides(bottom.points, top.points, 0, 5);
+  let top = await makeTriangles("./data/secondSet.bin", 10);
+  let tris = createSides(bottom.points, top.points, 0, 10);
   console.log("tri repeats? " + hasRepeatingElements(tris));
   const stlStr = makeStlFromTrisList([tris, bottom.tris, top.tris]);
   writeFile(stlStr, "./data/stl.stl");

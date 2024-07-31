@@ -121,7 +121,7 @@ const processGraph = (graph) => {
         if (adjStrs.indexOf(secondLevelAdjStr) !== -1) {
           tris.push([vertex, secondLevelAdj, adj]);
           // remove the second level adj from the adjs
-          adjsStrsToProcess.splice(secondLevelAdjStr, 1);
+          // adjsStrsToProcess.splice(secondLevelAdjStr, 1);
         }
       });
     }
@@ -213,15 +213,19 @@ const createSides = (bottom, top, currZ, zDiff) => {
       return Math.sqrt(xdis * xdis + ydis * ydis);
     });
     let shortest = null;
-    let closestPointIdx = null;
+    let closestPointIdxs = [];
     // what to do if there are points that are the same distance apart????? how much does it matter?? maybe perfer points that haven't been matched
     distances.forEach((dis, idx) => {
       if (shortest === null || dis < shortest) {
         shortest = dis;
-        closestPointIdx = idx;
+        closestPointIdxs = [idx];
+      } else if (dis === shortest) {
+        closestPointIdxs.push(idx);
       }
     });
-    return plane[closestPointIdx];
+    return closestPointIdxs.map((idx) => {
+      return plane[idx];
+    });
   };
 
   const graph = new Graph();
@@ -257,29 +261,34 @@ const createSides = (bottom, top, currZ, zDiff) => {
 
   // step 3
   let countOfLargerToSmaller = 0;
-  largerPlane.forEach((point) => {
-    countOfLargerToSmaller++;
-    let connector = findClosestInPlane(point, false);
-    let topPoint = topIsLarger ? point : connector;
-    let bottomPoint = topIsLarger ? connector : point;
-    add2DPointsToGraph(topPoint, bottomPoint);
+  smallerPlane.forEach((point) => {
+    let connectors = findClosestInPlane(point, true);
+    connectors.forEach((connector) => {
+      countOfLargerToSmaller++;
+      let topPoint = topIsLarger ? connector : point;
+      let bottomPoint = topIsLarger ? point : connector;
+      add2DPointsToGraph(topPoint, bottomPoint);
+    });
   });
 
   // go through points in smaller plane
   let countOfSmallerToLarger = 0;
-  smallerPlane.forEach((point) => {
+  largerPlane.forEach((point) => {
     if (
       !graph.hasVertex([
         point[0],
         point[1],
-        topIsLarger ? currZ : currZ + zDiff,
+        topIsLarger ? currZ + zDiff : currZ,
       ])
     ) {
-      countOfSmallerToLarger++;
-      let connector = findClosestInPlane(point, true);
-      let topPoint = topIsLarger ? connector : point;
-      let bottomPoint = topIsLarger ? point : connector;
-      add2DPointsToGraph(topPoint, bottomPoint);
+      let connectors = findClosestInPlane(point, false);
+
+      connectors.forEach((connector) => {
+        countOfSmallerToLarger++;
+        let topPoint = topIsLarger ? point : connector;
+        let bottomPoint = topIsLarger ? connector : point;
+        add2DPointsToGraph(topPoint, bottomPoint);
+      });
     }
   });
 
@@ -291,6 +300,8 @@ const createSides = (bottom, top, currZ, zDiff) => {
   // need to connect adj points in each plane
   connectAll(top, true);
   connectAll(bottom, false);
+
+  // console.log(graph.adjacencyList);
 
   // smallerPlane.forEach(())
 
