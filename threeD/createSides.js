@@ -301,160 +301,172 @@ const createSides = (bottom, top, currZ, zDiff) => {
   // k goes to e
   // maybe for split points (odd number) go by cloest distance
   // could still end up with squares, handle with old fcn I came up with
+
+  let counter = 0;
+  const addEdgesToStrandedBottomPoints = (prevIdx) => {
+    let prev = bottom[mod(prevIdx, bottom.length)];
+    let prevAdjs = graph.getAdjs([prev[0], prev[1], currZ]);
+
+    // big claim here saying that they will always be added in order - CHECK CHECK
+    // find idx of last one in smaller plane
+    // this is d
+    let prevAdjIdx = null;
+
+    top.every((point, idx) => {
+      if (
+        JSON.stringify(point) ===
+        JSON.stringify([
+          prevAdjs[prevAdjs.length - 1][0],
+          prevAdjs[prevAdjs.length - 1][1],
+        ])
+      ) {
+        prevAdjIdx = idx;
+        return false;
+      } else {
+        return true;
+      }
+    });
+    // d
+    let prevAdj = top[prevAdjIdx];
+    // console.log("d", prevAdj);
+    // e
+    let prevAdjNextPoint = top[mod(prevAdjIdx + 1, top.length)];
+    // console.log("e", prevAdjNextPoint);
+    // console.log(
+    //   "e adjs in bottom",
+    //   graph.getAdjs([prevAdjNextPoint[0], prevAdjNextPoint[1], currZ + zDiff])
+    // );
+
+    // find next vertex in bottom that is connected
+    let nextPointInBottomIdx = prevIdx + 2;
+    while (
+      !graph.hasVertex([
+        bottom[mod(nextPointInBottomIdx, bottom.length)][0],
+        bottom[mod(nextPointInBottomIdx, bottom.length)][1],
+        currZ,
+      ])
+    ) {
+      nextPointInBottomIdx++;
+    }
+    // hopefully, e will always be adj to point in bottom plane that is next
+    // at least works for this one
+    if (
+      graph.getAdjs([
+        prevAdjNextPoint[0],
+        prevAdjNextPoint[1],
+        currZ + zDiff,
+      ])[0][0] !== bottom[mod(nextPointInBottomIdx, bottom.length)][0] ||
+      graph.getAdjs([
+        prevAdjNextPoint[0],
+        prevAdjNextPoint[1],
+        currZ + zDiff,
+      ])[0][1] !== bottom[mod(nextPointInBottomIdx, bottom.length)][1]
+    ) {
+      console.log("PROBLEM ___ CLIAM FALSE");
+      console.log(prevIdx);
+    }
+
+    // l
+    // let nextPointInBottom = bottom[nextPointInBottomIdx];
+    // points between prevIdx and nextPointInBottomIdx are points that need to be added
+
+    if (nextPointInBottomIdx - prevIdx === 2) {
+      // there is only one point that needs to be added
+      // add it to both points in top plane to create triangles
+      // add to d -- idx is prevIdx + 1 or nextPointInBottomIdx - 1;
+      add2DPointsToGraph(prevAdj, bottom[prevIdx + 1]);
+      counter += 2;
+      // console.log("this");
+      // add to e
+      add2DPointsToGraph(prevAdjNextPoint, bottom[prevIdx + 1]);
+    } else {
+      let isOdd = mod(nextPointInBottomIdx - prevIdx, 2) === 1;
+      let midPoint = (nextPointInBottomIdx - prevIdx) / 2 + prevIdx;
+      // console.log(prevIdx, midPoint, nextPointInBottomIdx);
+      // if it is odd, there are two vs in the middle
+      // one of them will go to both verticies
+      // this is one way of deciding, not sure it is the best, also shouldn't really matter
+      // this method should make the most equal area trinagles
+      if (isOdd) {
+        if (
+          get2dDistance(
+            bottom[mod(midPoint - 0.5, bottom.length)],
+            prevAdjNextPoint
+          ) > get2dDistance(bottom[mod(midPoint + 0.5, bottom.length)], prevAdj)
+        ) {
+          // left one goes both ways
+          // only need to add to right here because going to the left will get handled in main for loop
+          add2DPointsToGraph(
+            prevAdjNextPoint,
+            bottom[mod(midPoint - 0.5, bottom.length)]
+          );
+          counter++;
+        } else {
+          // right one goes both ways
+          add2DPointsToGraph(
+            prevAdj,
+            bottom[mod(midPoint + 0.5, bottom.length)]
+          );
+          counter++;
+        }
+      }
+
+      for (let i = prevIdx + 1; i < nextPointInBottomIdx; i++) {
+        if (i < midPoint) {
+          // want to add to left side (prevAdj)
+          add2DPointsToGraph(prevAdj, bottom[mod(i, bottom.length)]);
+
+          counter++;
+        } else if (i > midPoint) {
+          // want to add to right side (prevAdjNextPoint)
+          add2DPointsToGraph(prevAdjNextPoint, bottom[mod(i, bottom.length)]);
+
+          counter++;
+        } else {
+          // equal to midpoint, add both ways, must be an even
+          add2DPointsToGraph(prevAdj, bottom[mod(i, bottom.length)]);
+          add2DPointsToGraph(prevAdjNextPoint, bottom[mod(i, bottom.length)]);
+          // console.log("this");
+
+          counter += 2;
+        }
+      }
+    }
+  };
+
   bottom.forEach((point, idx) => {
     if (!graph.hasVertex([point[0], point[1], currZ])) {
       // here, we found one that has no adj
       // prev will always have adj UNLESS we are at the start
       // special case for first vertex
       if (idx === 0) {
-        let newIdx = idx;
-        let prev = bottom[mod(newIdx - 1, bottom.length)];
+        let prevIdx = idx - 1;
+        let prev = bottom[mod(prevIdx, bottom.length)];
         while (!graph.hasVertex([prev[0], prev[1], currZ])) {
-          newIdx--;
-          prev = bottom[mod(newIdx - 1, bottom.length)];
-        }
-        let prevAdjs = graph.getAdjs([prev[0], prev[1], currZ]);
-        // console.log("prev adjs", prevAdjs);
-        // console.log([prevAdjs[0][0], prevAdjs[0][1]]);
-        // big claim here saying that they will always be added in order - CHECK CHECK
-        // find idx of last one in smaller plane
-        // this is d
-        let prevAdjIdx = null;
-        top.every((point, idx) => {
-          if (
-            JSON.stringify(point) ===
-            JSON.stringify([
-              prevAdjs[prevAdjs.length - 1][0],
-              prevAdjs[prevAdjs.length - 1][1],
-            ])
-          ) {
-            prevAdjIdx = idx;
-            return false;
-          } else {
-            return true;
-          }
-        });
-        // d
-        let prevAdj = top[prevAdjIdx];
-        console.log("d", prevAdj);
-        // e
-        let prevAdjNextPoint = top[mod(prevAdjIdx + 1, top.length)];
-        console.log("e", prevAdjNextPoint);
-        console.log(
-          "e adjs in bottom",
-          graph.getAdjs([
-            prevAdjNextPoint[0],
-            prevAdjNextPoint[1],
-            currZ + zDiff,
-          ])
-        );
-
-        // find next vertex in bottom that is connected
-        let nextPointInBottomIdx = 1;
-        while (
-          !graph.hasVertex([
-            bottom[nextPointInBottomIdx][0],
-            bottom[nextPointInBottomIdx][1],
-            currZ,
-          ])
-        ) {
-          nextPointInBottomIdx++;
-        }
-        // hopefully, e will always be adj to point in bottom plane that is next
-        // at least works for this one
-        if (
-          graph.getAdjs([
-            prevAdjNextPoint[0],
-            prevAdjNextPoint[1],
-            currZ + zDiff,
-          ])[0][0] !== bottom[nextPointInBottomIdx][0] ||
-          graph.getAdjs([
-            prevAdjNextPoint[0],
-            prevAdjNextPoint[1],
-            currZ + zDiff,
-          ])[0][1] !== bottom[nextPointInBottomIdx][1]
-        ) {
-          console.log("PROBLEM ___ CLIAM FALSE");
+          prevIdx--;
+          prev = bottom[mod(prevIdx, bottom.length)];
         }
 
-        // l
-        // let nextPointInBottom = bottom[nextPointInBottomIdx];
-        // points between newIdx and nextPointInBottomIdx are points that need to be added
-
-        if (nextPointInBottomIdx - newIdx === 2) {
-          // there is only one point that needs to be added
-          // add it to both points in top plane to create triangles
-          // add to d -- idx is newIdx + 1 or nextPointInBottomIdx - 1;
-          add2DPointsToGraph(prevAdj, bottom[idx]);
-          // add to e
-          add2DPointsToGraph(prevAdjNextPoint, bottom[idx]);
-        } else {
-          let isOdd = mod(nextPointInBottomIdx - newIdx, 2) === 1;
-          let midPoint = (nextPointInBottomIdx - newIdx) / 2 + newIdx;
-          // if it is odd, there are two vs in the middle
-          // one of them will go to both verticies
-          // this is one way of deciding, not sure it is the best, also shouldn't really matter
-          // this method should make the most equal area trinagles
-          if (isOdd) {
-            if (
-              get2dDistance(
-                bottom[mod(midPoint - 0.5, bottom.length)],
-                prevAdjNextPoint
-              ) >
-              get2dDistance(bottom[mod(midPoint + 0.5, bottom.length)], prevAdj)
-            ) {
-              // left one goes both ways
-              // only need to add to right here because going to the left will get handled in main for loop
-              add2DPointsToGraph(
-                prevAdjNextPoint,
-                bottom[mod(midPoint - 0.5, bottom.length)]
-              );
-            } else {
-              // right one goes both ways
-              add2DPointsToGraph(
-                prevAdj,
-                bottom[mod(midPoint + 0.5, bottom.length)]
-              );
-            }
-          }
-
-          for (let i = newIdx + 1; i < nextPointInBottomIdx; i++) {
-            if (i < midPoint) {
-              // want to add to left side (prevAdj)
-              add2DPointsToGraph(prevAdj, bottom[mod(i, bottom.length)]);
-            } else if (i > midPoint) {
-              // want to add to right side (prevAdjNextPoint)
-              add2DPointsToGraph(
-                prevAdjNextPoint,
-                bottom[mod(i, bottom.length)]
-              );
-            } else {
-              // equal to midpoint, add both ways, must be an even
-              add2DPointsToGraph(prevAdj, bottom[mod(i, bottom.length)]);
-              add2DPointsToGraph(
-                prevAdjNextPoint,
-                bottom[mod(i, bottom.length)]
-              );
-            }
-          }
-        }
+        addEdgesToStrandedBottomPoints(prevIdx);
+      } else {
+        addEdgesToStrandedBottomPoints(idx - 1);
       }
-
-      // let connectors = findClosestInPlane(point, false);
-
-      // connectors.forEach((connector) => {
-      //   countOfSmallerToLarger++;
-      //   let topPoint = connector;
-      //   let bottomPoint = point;
-      //   add2DPointsToGraph(topPoint, bottomPoint);
-      // });
     }
+
+    // let connectors = findClosestInPlane(point, false);
+
+    // connectors.forEach((connector) => {
+    //   countOfSmallerToLarger++;
+    //   let topPoint = connector;
+    //   let bottomPoint = point;
+    //   add2DPointsToGraph(topPoint, bottomPoint);
+    // });
   });
 
-  console.log("larger to smaller", countOfLargerToSmaller);
-  console.log("smaller to larger", countOfSmallerToLarger);
-  console.log("larger size", bottom.length);
-  console.log("smaller size", top.length);
+  console.log("top to bottom", countOfLargerToSmaller);
+  console.log("bottom to top", counter);
+  console.log("bottom size", bottom.length);
+  console.log("top size", top.length);
 
   // need to connect adj points in each plane
   connectAll(top, true);
