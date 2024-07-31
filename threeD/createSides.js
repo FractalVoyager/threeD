@@ -210,8 +210,8 @@ const triangulateSides = (graph) => {
 
 // ponts, tris
 const createSides = (bottom, top, currZ, zDiff) => {
-  const findClosestInPlane = (point, isLargerPlane) => {
-    let plane = isLargerPlane ? largerPlane : smallerPlane;
+  const findClosestInPlane = (point, isBottomPlane) => {
+    let plane = isBottomPlane ? bottom : top;
     let distances = plane.map((p) => {
       let xdis = p[0] - point[0];
       let ydis = p[1] - point[1];
@@ -261,21 +261,14 @@ const createSides = (bottom, top, currZ, zDiff) => {
   // once we have the good thing from only going one direction then traingulating (or really before taingualating)
   // don't connect to the same point twice connect only to new points or something look at picture
 
-  const topIsLarger = top.length > bottom.length;
-
-  console.log(topIsLarger, "bool");
-
-  const largerPlane = topIsLarger ? top : bottom;
-  const smallerPlane = topIsLarger ? bottom : top;
-
   // step 3
   let countOfLargerToSmaller = 0;
-  smallerPlane.forEach((point) => {
+  top.forEach((point) => {
     let connectors = findClosestInPlane(point, true);
     connectors.forEach((connector) => {
       countOfLargerToSmaller++;
-      let topPoint = topIsLarger ? connector : point;
-      let bottomPoint = topIsLarger ? point : connector;
+      let topPoint = point;
+      let bottomPoint = connector;
       add2DPointsToGraph(topPoint, bottomPoint);
     });
   });
@@ -307,42 +300,26 @@ const createSides = (bottom, top, currZ, zDiff) => {
   // x,k goes to d
   // k goes to e
   // maybe for split points (odd number) go by cloest distance
-  largerPlane.forEach((point, idx) => {
-    if (
-      !graph.hasVertex([
-        point[0],
-        point[1],
-        topIsLarger ? currZ + zDiff : currZ,
-      ])
-    ) {
+  bottom.forEach((point, idx) => {
+    if (!graph.hasVertex([point[0], point[1], currZ])) {
       // here, we found one that has no adj
       // prev will always have adj UNLESS we are at the start
       // special case for first vertex
       if (idx === 0) {
         let newIdx = idx;
-        let prev = largerPlane[mod(newIdx - 1, largerPlane.length)];
-        while (
-          !graph.hasVertex([
-            prev[0],
-            prev[1],
-            topIsLarger ? currZ + zDiff : currZ,
-          ])
-        ) {
+        let prev = bottom[mod(newIdx - 1, bottom.length)];
+        while (!graph.hasVertex([prev[0], prev[1], currZ])) {
           newIdx--;
-          prev = largerPlane[mod(newIdx - 1, largerPlane.length)];
+          prev = bottom[mod(newIdx - 1, bottom.length)];
         }
-        let prevAdjs = graph.getAdjs([
-          prev[0],
-          prev[1],
-          topIsLarger ? currZ + zDiff : currZ,
-        ]);
+        let prevAdjs = graph.getAdjs([prev[0], prev[1], currZ]);
         // console.log("prev adjs", prevAdjs);
         // console.log([prevAdjs[0][0], prevAdjs[0][1]]);
         // big claim here saying that they will always be added in order - CHECK CHECK
         // find idx of last one in smaller plane
         // this is e
         let prevAdjIdx = null;
-        smallerPlane.every((point, idx) => {
+        top.every((point, idx) => {
           if (
             JSON.stringify(point) ===
             JSON.stringify([
@@ -357,13 +334,9 @@ const createSides = (bottom, top, currZ, zDiff) => {
           }
         });
         // hopefully, e will always be adj to point in larger plane that is next
-        console.log(smallerPlane[prevAdjIdx]);
+        console.log(top[prevAdjIdx]);
         console.log(
-          graph.getAdjs([
-            smallerPlane[prevAdjIdx][0],
-            smallerPlane[prevAdjIdx][1],
-            topIsLarger ? currZ + zDiff : currZ,
-          ])
+          graph.getAdjs([top[prevAdjIdx][0], top[prevAdjIdx][1], currZ + zDiff])
         );
       }
 
@@ -371,8 +344,8 @@ const createSides = (bottom, top, currZ, zDiff) => {
 
       connectors.forEach((connector) => {
         countOfSmallerToLarger++;
-        let topPoint = topIsLarger ? point : connector;
-        let bottomPoint = topIsLarger ? connector : point;
+        let topPoint = connector;
+        let bottomPoint = point;
         add2DPointsToGraph(topPoint, bottomPoint);
       });
     }
@@ -380,8 +353,8 @@ const createSides = (bottom, top, currZ, zDiff) => {
 
   console.log("larger to smaller", countOfLargerToSmaller);
   console.log("smaller to larger", countOfSmallerToLarger);
-  console.log("larger size", largerPlane.length);
-  console.log("smaller size", smallerPlane.length);
+  console.log("larger size", bottom.length);
+  console.log("smaller size", top.length);
 
   // need to connect adj points in each plane
   connectAll(top, true);
