@@ -15,7 +15,7 @@ const {
 const { outliner } = require("./shapes/outliner");
 const { earClip, unOptimizedEarClip } = require("./shapes/earClipTriangulate");
 
-const { newmakeStl } = require("./stl/makeStil");
+const { makeStlFromTrisList } = require("./stl/makeStil");
 
 const { createSides } = require("./threeD/createSides");
 
@@ -48,7 +48,7 @@ function hasRepeatingElements(arr) {
   return false;
 }
 
-const makeTriangles = async (filePath) => {
+const makeTriangles = async (filePath, z) => {
   // const filePath = "./data/firstSet.bin";
 
   const data = await readBinaryFile(filePath);
@@ -82,24 +82,26 @@ const makeTriangles = async (filePath) => {
   );
   const threeDtris = oldTrinagles.map((tri) => {
     return tri.map((point) => {
-      return [point[0], point[1], 0];
+      return [point[0], point[1], z];
     });
   });
-  const stlStr = newmakeStl(threeDtris, length);
+  // const stlStr = makeStlFromTrisList([threeDtris]);
   // console.log(stlStr);
-  writeFile(stlStr, "./data/stl.stl");
+  // writeFile(stlStr, "./data/stl.stl");
 
-  return { points: ordering, tris: oldTrinagles };
+  return { points: ordering, tris: threeDtris };
 };
 
 const processCrosses = async () => {
-  let crosses = [];
   // const crosses = ["firstSet", "secondSet"].map((name) => {
   //   return await makeTriangles("./data/" + name + ".bin");
   // });
-  let bottom = await makeTriangles("./data/firstSet.bin");
-  let top = await makeTriangles("./data/secondSet.bin");
-  createSides(bottom, top);
+  let bottom = await makeTriangles("./data/firstSet.bin", 0);
+  let top = await makeTriangles("./data/secondSet.bin", 5);
+  let tris = createSides(bottom.points, top.points, 0, 5);
+  console.log("tri repeats? " + hasRepeatingElements(tris));
+  const stlStr = makeStlFromTrisList([tris, bottom.tris, top.tris]);
+  writeFile(stlStr, "./data/stl.stl");
 };
 
 processCrosses();

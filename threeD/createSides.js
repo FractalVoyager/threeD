@@ -98,12 +98,44 @@ class Graph {
   }
 }
 
+// once the graph is traingulated
+const processGraph = (graph) => {
+  let tris = [];
+  let verticesToProcess = Object.keys(graph.adjacencyList);
+  // console.log(verticesToProcess);
+  // go through all vertices
+  while (verticesToProcess.length > 2) {
+    // get a vertex
+    let vertexKey = verticesToProcess.pop();
+    let adjs = graph.getAdjsFromKey(vertexKey);
+    let adjStrs = adjs.map((adj) => JSON.stringify(adj));
+    let vertex = JSON.parse(vertexKey);
+    let adjsStrsToProcess = adjStrs;
+    while (adjsStrsToProcess.length > 0) {
+      let adjStr = adjsStrsToProcess.pop();
+      let adj = JSON.parse(adjStr);
+      let secondLevelAdjs = graph.getAdjs(adj);
+
+      secondLevelAdjs.forEach((secondLevelAdj) => {
+        let secondLevelAdjStr = JSON.stringify(secondLevelAdj);
+        if (adjStrs.indexOf(secondLevelAdjStr) !== -1) {
+          tris.push([vertex, secondLevelAdj, adj]);
+          // remove the second level adj from the adjs
+          adjsStrsToProcess.splice(secondLevelAdjStr, 1);
+        }
+      });
+    }
+  }
+  return tris;
+};
+
 // once the graph is all built up
 // this creates tris from squares
-
-const squaresToTris = (graph) => {
+const triangulateSides = (graph) => {
   // probably can add the traingles as we go
   let misses = false;
+
+  let additional = 0;
 
   Object.entries(graph.adjacencyList).forEach((obj) => {
     // step 1
@@ -161,15 +193,18 @@ const squaresToTris = (graph) => {
         }
       });
       // connect to the vertex
+      additional++;
       graph.addEdge(closestAdj, vertex);
     });
   });
+
+  console.log("additonal", additional);
 
   console.log(misses);
 };
 
 // ponts, tris
-const createSides = (bottom, top) => {
+const createSides = (bottom, top, currZ, zDiff) => {
   const findClosestInPlane = (point, isLargerPlane) => {
     let plane = isLargerPlane ? largerPlane : smallerPlane;
     let distances = plane.map((p) => {
@@ -193,7 +228,7 @@ const createSides = (bottom, top) => {
 
   const connectAll = (shape, isTop) => {
     // need the z value only so there is no repeating elements, not 3d yet
-    const z = isTop ? 1 : 0;
+    const z = isTop ? currZ + zDiff : currZ;
     for (let i = 0; i < shape.length; i++) {
       let left = shape[mod(i - 1, shape.length)];
       let right = shape[mod(i + 1, shape.length)];
@@ -210,18 +245,20 @@ const createSides = (bottom, top) => {
 
   const add2DPointsToGraph = (topPoint, bottomPoint) => {
     graph.addEdge(
-      [topPoint[0], topPoint[1], 1],
-      [bottomPoint[0], bottomPoint[1], 0]
+      [topPoint[0], topPoint[1], currZ + zDiff],
+      [bottomPoint[0], bottomPoint[1], currZ]
     );
   };
 
-  const topIsLarger = top.points.length > bottom.points.length;
+  const topIsLarger = top.length > bottom.length;
 
-  const largerPlane = topIsLarger ? top.points : bottom.points;
-  const smallerPlane = topIsLarger ? bottom.points : top.points;
+  const largerPlane = topIsLarger ? top : bottom;
+  const smallerPlane = topIsLarger ? bottom : top;
 
   // step 3
+  let countOfLargerToSmaller = 0;
   largerPlane.forEach((point) => {
+    countOfLargerToSmaller++;
     let connector = findClosestInPlane(point, false);
     let topPoint = topIsLarger ? point : connector;
     let bottomPoint = topIsLarger ? connector : point;
@@ -229,8 +266,16 @@ const createSides = (bottom, top) => {
   });
 
   // go through points in smaller plane
+  let countOfSmallerToLarger = 0;
   smallerPlane.forEach((point) => {
-    if (!graph.hasVertex([point[0], point[1], topIsLarger ? 0 : 1])) {
+    if (
+      !graph.hasVertex([
+        point[0],
+        point[1],
+        topIsLarger ? currZ : currZ + zDiff,
+      ])
+    ) {
+      countOfSmallerToLarger++;
       let connector = findClosestInPlane(point, true);
       let topPoint = topIsLarger ? connector : point;
       let bottomPoint = topIsLarger ? point : connector;
@@ -238,14 +283,27 @@ const createSides = (bottom, top) => {
     }
   });
 
+  console.log("larger to smaller", countOfLargerToSmaller);
+  console.log("smaller to larger", countOfSmallerToLarger);
+  console.log("larger size", largerPlane.length);
+  console.log("smaller size", smallerPlane.length);
+
   // need to connect adj points in each plane
-  connectAll(top.points, true);
-  connectAll(bottom.points, false);
+  connectAll(top, true);
+  connectAll(bottom, false);
 
   // smallerPlane.forEach(())
 
-  squaresToTris(graph);
-  squaresToTris(graph);
+  triangulateSides(graph);
+  // if you run it again and there are misses, the alg is failing
+  triangulateSides(graph);
+
+  console.log(Object.keys(graph.adjacencyList).length);
+
+  const tris = processGraph(graph);
+
+  console.log(tris.length);
+  return tris;
 
   // test
   // console.log(Object.keys(graph.adjacencyList).length);

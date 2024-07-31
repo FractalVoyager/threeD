@@ -35,112 +35,30 @@ function extrudeVertices(vertices, normal, distance) {
     vertex[2] + normal[2] * distance,
   ]);
 }
-// chat gpt to add depth
-const newmakeStl = (triangles, width) => {
+const makeStlForTris = (tris) => {
   let str = "";
-  str += "solid name\n";
-  // console.log(triangles);
-
-  triangles.forEach((tri) => {
-    // Extract the vertices
-    let [v0, v1, v2] = tri;
-
-    // Compute the normal
-    let norm = calcNorm(v0, v1, v2);
-
-    // Extrude vertices
-    let extrudedFront = extrudeVertices(tri, norm, width / 2);
-    let extrudedBack = extrudeVertices(tri, norm, -width / 2);
-
-    // Original face (front)
+  tris.forEach((tri) => {
+    let norm = calcNorm(tri[0], tri[1], tri[2]);
     str += "facet normal " + norm[0] + " " + norm[1] + " " + norm[2] + "\n";
     str += "outer loop\n";
-    [extrudedFront[0], extrudedFront[1], extrudedFront[2]].forEach((point) => {
+
+    tri.forEach((point) => {
       str += "vertex " + point[0] + " " + point[1] + " " + point[2] + "\n";
     });
-    str += "endloop\n";
-    str += "endfacet\n";
-
-    // Back face
-    str += "facet normal " + -norm[0] + " " + -norm[1] + " " + -norm[2] + "\n";
-    str += "outer loop";
-    [extrudedBack[0], extrudedBack[1], extrudedBack[2]].forEach((point) => {
-      str += "vertex " + point[0] + " " + point[1] + " " + point[2] + "\n";
-    });
-    str += "endloop\n";
-    str += "endfacet\n";
-
-    // Side faces
-    for (let i = 0; i < 3; i++) {
-      let next = (i + 1) % 3;
-      str += "facet normal " + norm[0] + " " + norm[1] + " " + norm[2] + "\n";
-      str += "outer loop\n";
-
-      str +=
-        "vertex " +
-        extrudedFront[i][0] +
-        " " +
-        extrudedFront[i][1] +
-        " " +
-        extrudedFront[i][2] +
-        "\n";
-
-      str +=
-        "vertex " +
-        extrudedBack[i][0] +
-        " " +
-        extrudedBack[i][1] +
-        " " +
-        extrudedBack[i][2] +
-        "\n";
-
-      str +=
-        "vertex " +
-        extrudedBack[next][0] +
-        " " +
-        extrudedBack[next][1] +
-        " " +
-        extrudedBack[next][2] +
-        "\n";
-
-      str += "endloop\n";
-      str += "endfacet\n";
-
-      str += "facet normal " + norm[0] + " " + norm[1] + " " + norm[2] + "\n";
-      str += "outer loop\n";
-
-      str +=
-        "vertex " +
-        extrudedFront[i][0] +
-        " " +
-        extrudedFront[i][1] +
-        " " +
-        extrudedFront[i][2] +
-        "\n";
-      str +=
-        "vertex " +
-        extrudedBack[next][0] +
-        " " +
-        extrudedBack[next][1] +
-        " " +
-        extrudedBack[next][2] +
-        "\n";
-      str +=
-        "vertex " +
-        extrudedFront[next][0] +
-        " " +
-        extrudedFront[next][1] +
-        " " +
-        extrudedFront[next][2] +
-        "\n";
-
-      str += "endloop\n";
-      str += "endfacet\n";
-    }
+    str += "endloop\nendfacet\n";
   });
 
+  return str;
+};
+
+// original one to take list of triangles and make stil out of it
+const makeStlFromTrisList = (trisList) => {
+  let str = "solid name\n";
+  trisList.forEach((tris) => {
+    str += makeStlForTris(tris);
+  });
   str += "endsolid name\n";
   return str;
 };
 
-module.exports = { newmakeStl };
+module.exports = { makeStlFromTrisList };
