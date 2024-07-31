@@ -181,7 +181,8 @@ const triangulateSides = (graph) => {
       let cloestDistance = null;
       strandedAjs.forEach((strandedAdj) => {
         // oppiste plane
-        if (strandedAdj[2] !== vertex[2]) {
+        if (true) {
+          // if (strandedAdj[2] !== strandedPoint[2]) {
           let dist = get2dDistance(strandedAdj, vertex);
           if (
             cloestDistance === null ||
@@ -192,9 +193,13 @@ const triangulateSides = (graph) => {
           }
         }
       });
-      // connect to the vertex
-      additional++;
-      graph.addEdge(closestAdj, vertex);
+      if (closestAdj[2] === strandedPoint[2]) {
+        console.log("HOLE AT ", strandedPoint);
+      } else {
+        // connect to the vertex
+        additional++;
+        graph.addEdge(closestAdj, vertex);
+      }
     });
   });
 
@@ -253,6 +258,8 @@ const createSides = (bottom, top, currZ, zDiff) => {
       [bottomPoint[0], bottomPoint[1], currZ]
     );
   };
+  // once we have the good thing from only going one direction then traingulating (or really before taingualating)
+  // don't connect to the same point twice connect only to new points or something look at picture
 
   const topIsLarger = top.length > bottom.length;
 
@@ -273,24 +280,24 @@ const createSides = (bottom, top, currZ, zDiff) => {
 
   // go through points in smaller plane
   let countOfSmallerToLarger = 0;
-  largerPlane.forEach((point) => {
-    if (
-      !graph.hasVertex([
-        point[0],
-        point[1],
-        topIsLarger ? currZ + zDiff : currZ,
-      ])
-    ) {
-      let connectors = findClosestInPlane(point, false);
+  // largerPlane.forEach((point) => {
+  //   if (
+  //     !graph.hasVertex([
+  //       point[0],
+  //       point[1],
+  //       topIsLarger ? currZ + zDiff : currZ,
+  //     ])
+  //   ) {
+  //     let connectors = findClosestInPlane(point, false);
 
-      connectors.forEach((connector) => {
-        countOfSmallerToLarger++;
-        let topPoint = topIsLarger ? point : connector;
-        let bottomPoint = topIsLarger ? connector : point;
-        add2DPointsToGraph(topPoint, bottomPoint);
-      });
-    }
-  });
+  //     connectors.forEach((connector) => {
+  //       countOfSmallerToLarger++;
+  //       let topPoint = topIsLarger ? point : connector;
+  //       let bottomPoint = topIsLarger ? connector : point;
+  //       add2DPointsToGraph(topPoint, bottomPoint);
+  //     });
+  //   }
+  // });
 
   console.log("larger to smaller", countOfLargerToSmaller);
   console.log("smaller to larger", countOfSmallerToLarger);
@@ -301,13 +308,13 @@ const createSides = (bottom, top, currZ, zDiff) => {
   connectAll(top, true);
   connectAll(bottom, false);
 
-  // console.log(graph.adjacencyList);
+  console.log(graph.adjacencyList);
 
   // smallerPlane.forEach(())
 
   triangulateSides(graph);
   // if you run it again and there are misses, the alg is failing
-  triangulateSides(graph);
+  // triangulateSides(graph);
 
   console.log(Object.keys(graph.adjacencyList).length);
 
