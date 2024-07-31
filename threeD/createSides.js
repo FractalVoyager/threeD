@@ -194,7 +194,7 @@ const triangulateSides = (graph) => {
         }
       });
       if (closestAdj[2] === strandedPoint[2]) {
-        console.log("HOLE AT ", strandedPoint);
+        // console.log("HOLE AT ", strandedPoint);
       } else {
         // connect to the vertex
         additional++;
@@ -263,6 +263,8 @@ const createSides = (bottom, top, currZ, zDiff) => {
 
   const topIsLarger = top.length > bottom.length;
 
+  console.log(topIsLarger, "bool");
+
   const largerPlane = topIsLarger ? top : bottom;
   const smallerPlane = topIsLarger ? bottom : top;
 
@@ -280,24 +282,101 @@ const createSides = (bottom, top, currZ, zDiff) => {
 
   // go through points in smaller plane
   let countOfSmallerToLarger = 0;
-  // largerPlane.forEach((point) => {
-  //   if (
-  //     !graph.hasVertex([
-  //       point[0],
-  //       point[1],
-  //       topIsLarger ? currZ + zDiff : currZ,
-  //     ])
-  //   ) {
-  //     let connectors = findClosestInPlane(point, false);
 
-  //     connectors.forEach((connector) => {
-  //       countOfSmallerToLarger++;
-  //       let topPoint = topIsLarger ? point : connector;
-  //       let bottomPoint = topIsLarger ? connector : point;
-  //       add2DPointsToGraph(topPoint, bottomPoint);
-  //     });
-  //   }
-  // });
+  // new strategy
+  // when we get to a vertex that has no adjacency to smaller plane, get connect to the vertex in smaller plane that comes after
+  // the last one here
+  // say a,b,c,d (ordered that way) in smaller plane is connected to y in larger
+  // larger plane ordering is y, z, x
+  // we get to z, see that has it has adjs to larger plane.
+  // then we see that y came before
+  // get all adjs of y = [a,b,c,d]
+  // see that d was added last (TODO check that this is really the one we want, it just needs to be last in the ordering (first vertex may be weird)) - i.e. d is the one we want, not c or any others, based on ordering in orig
+  // add to point after d in ordering DONE
+  // MAY also want to see how many points after z are also non adj to smaller plane, and split in half between the two
+  // THIS WAY SHOULD MAKE ALL SQAURES OR TRIS, then can do the old way of detecting sqaures are traingulating which makes more sense
+
+  // actually, just going to fully traingulate here
+  // when we get to y and find d...
+  // find point e (after ordering in smaller plane)
+  // TODO check - maybe hopoing that es first adj will be the next point in larger plane that doesn't have adj in ordering
+  // split points in larger plane in this zone between the two verticies to fully traingualte
+  // so say ordering is z,x,k,j,l and l is adjacent to e
+  // z goes to d to do that trinagle
+  // j goes to e to do that traingle
+  // x,k goes to d
+  // k goes to e
+  // maybe for split points (odd number) go by cloest distance
+  largerPlane.forEach((point, idx) => {
+    if (
+      !graph.hasVertex([
+        point[0],
+        point[1],
+        topIsLarger ? currZ + zDiff : currZ,
+      ])
+    ) {
+      // here, we found one that has no adj
+      // prev will always have adj UNLESS we are at the start
+      // special case for first vertex
+      if (idx === 0) {
+        let newIdx = idx;
+        let prev = largerPlane[mod(newIdx - 1, largerPlane.length)];
+        while (
+          !graph.hasVertex([
+            prev[0],
+            prev[1],
+            topIsLarger ? currZ + zDiff : currZ,
+          ])
+        ) {
+          newIdx--;
+          prev = largerPlane[mod(newIdx - 1, largerPlane.length)];
+        }
+        let prevAdjs = graph.getAdjs([
+          prev[0],
+          prev[1],
+          topIsLarger ? currZ + zDiff : currZ,
+        ]);
+        // console.log("prev adjs", prevAdjs);
+        // console.log([prevAdjs[0][0], prevAdjs[0][1]]);
+        // big claim here saying that they will always be added in order - CHECK CHECK
+        // find idx of last one in smaller plane
+        // this is e
+        let prevAdjIdx = null;
+        smallerPlane.every((point, idx) => {
+          if (
+            JSON.stringify(point) ===
+            JSON.stringify([
+              prevAdjs[prevAdjs.length - 1][0],
+              prevAdjs[prevAdjs.length - 1][1],
+            ])
+          ) {
+            prevAdjIdx = idx;
+            return false;
+          } else {
+            return true;
+          }
+        });
+        // hopefully, e will always be adj to point in larger plane that is next
+        console.log(smallerPlane[prevAdjIdx]);
+        console.log(
+          graph.getAdjs([
+            smallerPlane[prevAdjIdx][0],
+            smallerPlane[prevAdjIdx][1],
+            topIsLarger ? currZ + zDiff : currZ,
+          ])
+        );
+      }
+
+      let connectors = findClosestInPlane(point, false);
+
+      connectors.forEach((connector) => {
+        countOfSmallerToLarger++;
+        let topPoint = topIsLarger ? point : connector;
+        let bottomPoint = topIsLarger ? connector : point;
+        add2DPointsToGraph(topPoint, bottomPoint);
+      });
+    }
+  });
 
   console.log("larger to smaller", countOfLargerToSmaller);
   console.log("smaller to larger", countOfSmallerToLarger);
@@ -308,7 +387,7 @@ const createSides = (bottom, top, currZ, zDiff) => {
   connectAll(top, true);
   connectAll(bottom, false);
 
-  console.log(graph.adjacencyList);
+  // console.log(graph.adjacencyList);
 
   // smallerPlane.forEach(())
 
