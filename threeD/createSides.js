@@ -167,6 +167,7 @@ const squaresToTris = (graph) => {
       // console.log("all triangles for ", vertex);
       return;
     }
+    misses = true;
 
     difference.forEach((strandedPoint) => {
       // only want to draw lines between top plane and bottom plane
@@ -688,6 +689,8 @@ const createSides = (bottom, top, currZ, zDiff) => {
   // smallerPlane.forEach(())
 
   squaresToTris(graph);
+  squaresToTris(graph);
+
   // triangulateSides(graph);
   // if you run it again and there are misses, the alg is failing
   // triangulateSides(graph);
