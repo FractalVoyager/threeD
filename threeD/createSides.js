@@ -130,7 +130,116 @@ const processGraph = (graph) => {
 };
 
 // once the graph is all built up
-// this creates tris from squares
+// this creates traingles from squares
+const squaresToTris = (graph) => {
+  // probably can add the traingles as we go
+  let misses = false;
+
+  let additional = 0;
+
+  Object.entries(graph.adjacencyList).forEach((obj) => {
+    // step 1
+    let adjs = obj[1];
+    let vertex = JSON.parse(obj[0]);
+    let vertexKey = obj[0];
+    // step 2
+    let secondLevelAdjs = new Set();
+    adjs.forEach((firstLevelAdj) => {
+      graph.getAdjs(firstLevelAdj).forEach((secondLevelAdj) => {
+        secondLevelAdjs.add(JSON.stringify(secondLevelAdj));
+      });
+    });
+    secondLevelAdjs.delete(vertexKey);
+
+    // find all the original adjs that are not in the second level adjs
+    // if an element is in here, this means there is not a three cycle from vertex
+    // that includes this adj, i.e. needs a triangle
+    let difference = [];
+    adjs.forEach((firstLevelAdj) => {
+      if (!secondLevelAdjs.has(JSON.stringify(firstLevelAdj))) {
+        // in the difference
+        difference.push(firstLevelAdj);
+      }
+    });
+
+    // step 3
+    if (difference.length === 0) {
+      // console.log("all triangles for ", vertex);
+      return;
+    }
+
+    difference.forEach((strandedPoint) => {
+      // only want to draw lines between top plane and bottom plane
+      // every vertex here must have an adj that is adj to one of the initial adjs BIG CLAIM - thought through it a lot but a proof would be nice and tested below, test passed
+      // this means all squares or tris
+      let strandedAjs = graph.getAdjs(strandedPoint);
+
+      // remove original point
+      strandedAjs = strandedAjs.filter(
+        (adj) => JSON.stringify(adj) !== vertexKey
+      );
+
+      let connectors = [];
+
+      strandedAjs.forEach((strandedAdj) => {
+        if (
+          secondLevelAdjs.has(JSON.stringify(strandedAdj)) &&
+          strandedAdj[2] !== vertex[2]
+        ) {
+          connectors.push(strandedAdj);
+        }
+      });
+
+      // let connectors = strandedAjs.filter((strandedAdj) =>
+      //   secondLevelAdjs.indexOf(JSON.stringify(strandedAdj) !== -1)
+      // );
+      // console.log("connectors", connectors);
+
+      let adjsStr = adjs.map((adj) => JSON.stringify(adj));
+      // console.log("stranded", strandedPoint);
+      // console.log("its adjs without orig", strandedAjs);
+      // console.log("original adjs", adjs);
+      // console.log("original point", vertex);
+
+      // console.log(strandedSecondLevelAjs, adjs);
+      // big claim test
+      let newPointIdx = -1;
+
+      strandedAjs.forEach((strandedAdj) => {
+        let strandedAdjAdjs = graph.getAdjs(strandedAdj);
+        strandedAdjAdjs.forEach((adj) => {
+          let connectorIdx = adjsStr.indexOf(JSON.stringify(adj));
+          if (connectorIdx !== -1) {
+            // console.log("stranded adj connector", strandedAdj);
+            if (newPointIdx !== -1) {
+              // console.log("two connectors found");
+            }
+            newPointIdx = connectorIdx;
+            // console.log("connection found");
+            // console.log(
+            //   "adj of stranded",
+            //   adj,
+            //   vertex,
+            //   strandedPoint,
+            //   strandedAdj
+            // );
+          }
+        });
+        if (newPointIdx === -1) {
+          console.log("none found!!!");
+        }
+      });
+
+      // console.log(myin);
+    });
+  });
+  // console.log("additonal", additional);
+
+  console.log(misses);
+};
+
+// once the graph is all built up
+// this creates traingles from all nodes by going through the stranded nodes. It works even if it is not all squares or tris (4-cyles or 3-cyles)
 const triangulateSides = (graph) => {
   // probably can add the traingles as we go
   let misses = false;
@@ -210,8 +319,9 @@ const triangulateSides = (graph) => {
 
 // ponts, tris
 const createSides = (bottom, top, currZ, zDiff) => {
-  const findClosestInPlane = (point, isBottomPlane) => {
+  const findClosestInPlane = (point, isBottomPlane, startIdx, endIdx) => {
     let plane = isBottomPlane ? bottom : top;
+    // TODO don't need to do this for every point now
     let distances = plane.map((p) => {
       let xdis = p[0] - point[0];
       let ydis = p[1] - point[1];
@@ -219,18 +329,87 @@ const createSides = (bottom, top, currZ, zDiff) => {
     });
     let shortest = null;
     let closestPointIdxs = [];
+
+    let maxIters = mod(endIdx - startIdx, plane.length) + 1;
+    let counter = 0;
     // what to do if there are points that are the same distance apart????? how much does it matter?? maybe perfer points that haven't been matched
-    distances.forEach((dis, idx) => {
+    for (let i = startIdx; counter <= maxIters; i = (i + 1) % plane.length) {
+      counter++;
+      let dis = distances[i];
       if (shortest === null || dis < shortest) {
         shortest = dis;
-        closestPointIdxs = [idx];
+        closestPointIdxs = [i];
       } else if (dis === shortest) {
-        closestPointIdxs.push(idx);
+        closestPointIdxs.push(i);
       }
-    });
-    return closestPointIdxs.map((idx) => {
+    }
+
+    // this is to handle the case when the first point matches to
+    let biggestDistance = null;
+    let biggestDistancePoints = null;
+    let lastIdx = null;
+    let cloestPoints = closestPointIdxs.map((idx) => {
+      // first point
+      if (lastIdx === null) {
+        lastIdx = idx;
+        // second point
+      } else if (biggestDistance === null) {
+        biggestDistance = mod(idx - lastIdx, plane.length);
+        biggestDistancePoints = [lastIdx, idx];
+        lastIdx = idx;
+        // third or later
+      } else {
+        let distance = mod(idx - lastIdx, plane.length);
+        if (distance > biggestDistance) {
+          biggestDistance = distance;
+          biggestDistancePoints = [lastIdx, idx];
+        }
+        lastIdx = idx;
+      }
+
       return plane[idx];
     });
+
+    if (lastIdx === null) {
+      console.log("PROBLEM - no points found in find cloest in plane");
+      return false;
+    }
+
+    // only one point
+    if (biggestDistance === null) {
+      // it is max and min
+      return [cloestPoints, lastIdx, lastIdx];
+    } else {
+      // need to know which one is the "start" and which one is the "end"
+      if (
+        mod(biggestDistancePoints[0] + biggestDistance, plane.length) ===
+        biggestDistancePoints[1]
+      ) {
+        // distance is between the two points from first to second
+        // so want to start at the first and go to the second
+        return [
+          cloestPoints,
+          biggestDistancePoints[0],
+          biggestDistancePoints[1],
+        ];
+      } else {
+        // CHECKER
+        if (
+          mod(biggestDistancePoints[1] + biggestDistance, plane.length) !==
+          biggestDistancePoints[0]
+        ) {
+          console.log(
+            "PROBLEMMMMMMM getting order of points in find cloest in plane is wrong"
+          );
+        }
+        // want to start at the second and go to the first
+        return [
+          cloestPoints,
+          biggestDistancePoints[1],
+          biggestDistancePoints[0],
+        ];
+      }
+    }
   };
 
   const graph = new Graph();
@@ -260,11 +439,24 @@ const createSides = (bottom, top, currZ, zDiff) => {
   };
   // once we have the good thing from only going one direction then traingulating (or really before taingualating)
   // don't connect to the same point twice connect only to new points or something look at picture
+  let endIdx = bottom.length - 1;
+  let startIdx = 0;
 
   // step 3
   let countOfLargerToSmaller = 0;
-  top.forEach((point) => {
-    let connectors = findClosestInPlane(point, true);
+  top.forEach((point, idx) => {
+    let [connectors, newStartIdx, newEndIdx] = findClosestInPlane(
+      point,
+      true,
+      startIdx,
+      endIdx
+    );
+    if (idx === 0) {
+      endIdx = newEndIdx;
+    }
+    startIdx = newStartIdx;
+
+    // maxIdx is the new starting index
     connectors.forEach((connector) => {
       countOfLargerToSmaller++;
       let topPoint = point;
@@ -274,7 +466,6 @@ const createSides = (bottom, top, currZ, zDiff) => {
   });
 
   // go through points in smaller plane
-  let countOfSmallerToLarger = 0;
 
   // new strategy
   // when we get to a vertex that has no adjacency to smaller plane, get connect to the vertex in smaller plane that comes after
@@ -307,8 +498,8 @@ const createSides = (bottom, top, currZ, zDiff) => {
     let prev = bottom[mod(prevIdx, bottom.length)];
     let prevAdjs = graph.getAdjs([prev[0], prev[1], currZ]);
 
-    // big claim here saying that they will always be added in order - CHECK CHECK
-    // find idx of last one in smaller plane
+    // big claim here saying that they will always be added in order - CHECK CHECK - pretty sure I always want it to be in order, try to come up with a coutner example
+    // find idx prevAdj in top plane that is the "last" one - last one added
     // this is d
     let prevAdjIdx = null;
 
@@ -363,7 +554,41 @@ const createSides = (bottom, top, currZ, zDiff) => {
       ])[0][1] !== bottom[mod(nextPointInBottomIdx, bottom.length)][1]
     ) {
       console.log("PROBLEM ___ CLIAM FALSE");
-      console.log(prevIdx);
+      console.log("prevIdx", prevIdx);
+      console.log("newPointINBOttom", nextPointInBottomIdx);
+      // console.log(
+      //   "the inncorect connection",
+      //   graph.getAdjs([
+      //     prevAdjNextPoint[0],
+      //     prevAdjNextPoint[1],
+      //     currZ + zDiff,
+      //   ])[0]
+      // );
+      bottom.forEach((point, idx) => {
+        if (point[0] === 197 && point[1] === 299) {
+          console.log("idx of prevAdjNextPoint first connection", idx);
+        }
+      });
+
+      let nextPointInBottom = bottom[mod(nextPointInBottomIdx, bottom.length)];
+
+      let nextPointInBOttomAdj = graph.getAdjs([
+        nextPointInBottom[0],
+        nextPointInBottom[1],
+        currZ,
+      ])[0];
+
+      top.forEach((point, idx) => {
+        if (
+          point[0] === nextPointInBOttomAdj[0] &&
+          nextPointInBOttomAdj[1] === 298
+        ) {
+          console.log("idx of next point in bottom top connection", idx);
+        }
+      });
+      console.log("correct point idx", mod(prevAdjIdx + 1, top.length));
+
+      console.log("_______");
     }
 
     // l
@@ -476,6 +701,7 @@ const createSides = (bottom, top, currZ, zDiff) => {
 
   // smallerPlane.forEach(())
 
+  squaresToTris(graph);
   // triangulateSides(graph);
   // if you run it again and there are misses, the alg is failing
   // triangulateSides(graph);
