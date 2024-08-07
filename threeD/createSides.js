@@ -539,56 +539,82 @@ const createSides = (bottom, top, currZ, zDiff) => {
     ) {
       nextPointInBottomIdx++;
     }
-    // hopefully, e will always be adj to point in bottom plane that is next
-    // at least works for this one
+
+    let nextPointInBottom = bottom[mod(nextPointInBottomIdx, bottom.length)];
+
+    // first want to check if this point is connected to prevAdj
+    let nextPointInBottomAdjs = graph.getAdjs([
+      nextPointInBottom[0],
+      nextPointInBottom[1],
+      currZ,
+    ]);
+    let nextPointInBottomAdj = nextPointInBottomAdjs[0];
+
+    // it will always be the first adj
+    if (
+      nextPointInBottomAdj[0] === prevAdj[0] &&
+      nextPointInBottomAdj[1] === prevAdj[1]
+    ) {
+      // it is connected
+      // we want all middle points to go to prevAdj
+      for (let i = prevIdx + 1; i < nextPointInBottomIdx; i++) {
+        add2DPointsToGraph(prevAdj, bottom[mod(i, bottom.length)]);
+      }
+      return;
+    }
+
+    // todo write compare function
+
     if (
       graph.getAdjs([
         prevAdjNextPoint[0],
         prevAdjNextPoint[1],
         currZ + zDiff,
-      ])[0][0] !== bottom[mod(nextPointInBottomIdx, bottom.length)][0] ||
+      ])[0][0] !== nextPointInBottom[0] ||
       graph.getAdjs([
         prevAdjNextPoint[0],
         prevAdjNextPoint[1],
         currZ + zDiff,
-      ])[0][1] !== bottom[mod(nextPointInBottomIdx, bottom.length)][1]
+      ])[0][1] !== nextPointInBottom[1]
     ) {
+      // what can happen here is a point was skipped. prev connected to top point, which is also connected to nextPointInBottom, but curr point was skipped
+      // even if the nextPointInBtootm is connected to prevAdjNextPoint, but also prevAdj, we want to connect middle points to prevAdj
       console.log("PROBLEM ___ CLIAM FALSE");
-      console.log("prevIdx", prevIdx);
-      console.log("newPointINBOttom", nextPointInBottomIdx);
-      // console.log(
-      //   "the inncorect connection",
-      //   graph.getAdjs([
-      //     prevAdjNextPoint[0],
-      //     prevAdjNextPoint[1],
-      //     currZ + zDiff,
-      //   ])[0]
-      // );
-      bottom.forEach((point, idx) => {
-        if (point[0] === 197 && point[1] === 299) {
-          console.log("idx of prevAdjNextPoint first connection", idx);
-        }
-      });
+      // console.log("prevIdx", prevIdx);
+      // console.log("newPointINBOttom", nextPointInBottomIdx);
+      // // console.log(
+      // //   "the inncorect connection",
+      // //   graph.getAdjs([
+      // //     prevAdjNextPoint[0],
+      // //     prevAdjNextPoint[1],
+      // //     currZ + zDiff,
+      // //   ])[0]
+      // // );
+      // bottom.forEach((point, idx) => {
+      //   if (point[0] === 197 && point[1] === 299) {
+      //     console.log("idx of prevAdjNextPoint first connection", idx);
+      //   }
+      // });
 
-      let nextPointInBottom = bottom[mod(nextPointInBottomIdx, bottom.length)];
+      // let nextPointInBottom = bottom[mod(nextPointInBottomIdx, bottom.length)];
 
-      let nextPointInBOttomAdj = graph.getAdjs([
-        nextPointInBottom[0],
-        nextPointInBottom[1],
-        currZ,
-      ])[0];
+      // let nextPointInBOttomAdj = graph.getAdjs([
+      //   nextPointInBottom[0],
+      //   nextPointInBottom[1],
+      //   currZ,
+      // ])[0];
 
-      top.forEach((point, idx) => {
-        if (
-          point[0] === nextPointInBOttomAdj[0] &&
-          nextPointInBOttomAdj[1] === 298
-        ) {
-          console.log("idx of next point in bottom top connection", idx);
-        }
-      });
-      console.log("correct point idx", mod(prevAdjIdx + 1, top.length));
+      // top.forEach((point, idx) => {
+      //   if (
+      //     point[0] === nextPointInBOttomAdj[0] &&
+      //     nextPointInBOttomAdj[1] === 298
+      //   ) {
+      //     console.log("idx of next point in bottom top connection", idx);
+      //   }
+      // });
+      // console.log("correct point idx", mod(prevAdjIdx + 1, top.length));
 
-      console.log("_______");
+      // console.log("_______");
     }
 
     // l
