@@ -184,51 +184,49 @@ const squaresToTris = (graph) => {
       strandedAjs.forEach((strandedAdj) => {
         if (
           secondLevelAdjs.has(JSON.stringify(strandedAdj)) &&
+          // dont see why I need this anymore but seems like I do
           strandedAdj[2] !== vertex[2]
         ) {
           connectors.push(strandedAdj);
         }
       });
 
-      // let connectors = strandedAjs.filter((strandedAdj) =>
-      //   secondLevelAdjs.indexOf(JSON.stringify(strandedAdj) !== -1)
-      // );
-      // console.log("connectors", connectors);
+      // now have a connector vertex
 
-      let adjsStr = adjs.map((adj) => JSON.stringify(adj));
-      // console.log("stranded", strandedPoint);
-      // console.log("its adjs without orig", strandedAjs);
-      // console.log("original adjs", adjs);
-      // console.log("original point", vertex);
+      // if (connectors.length > 2) {
+      //   console.log("more than one connector found");
+      // }
+      // if (connectors.length === 0) {
+      //   console.log("no connectors foud");
+      // }
 
-      // console.log(strandedSecondLevelAjs, adjs);
-      // big claim test
-      let newPointIdx = -1;
-
-      strandedAjs.forEach((strandedAdj) => {
-        let strandedAdjAdjs = graph.getAdjs(strandedAdj);
-        strandedAdjAdjs.forEach((adj) => {
-          let connectorIdx = adjsStr.indexOf(JSON.stringify(adj));
-          if (connectorIdx !== -1) {
-            // console.log("stranded adj connector", strandedAdj);
-            if (newPointIdx !== -1) {
-              // console.log("two connectors found");
-            }
-            newPointIdx = connectorIdx;
-            // console.log("connection found");
-            // console.log(
-            //   "adj of stranded",
-            //   adj,
-            //   vertex,
-            //   strandedPoint,
-            //   strandedAdj
-            // );
-          }
-        });
-        if (newPointIdx === -1) {
-          console.log("none found!!!");
-        }
+      connectors.forEach((connector) => {
+        // console.log(connector, vertex);
+        graph.addEdge(connector, vertex);
       });
+
+      // let adjsStr = adjs.map((adj) => JSON.stringify(adj));
+
+      // // big claim test
+      // let newPointIdx = -1;
+
+      // strandedAjs.forEach((strandedAdj) => {
+      //   let strandedAdjAdjs = graph.getAdjs(strandedAdj);
+      //   strandedAdjAdjs.forEach((adj) => {
+      //     let connectorIdx = adjsStr.indexOf(JSON.stringify(adj));
+      //     if (connectorIdx !== -1) {
+      //       // console.log("stranded adj connector", strandedAdj);
+      //       if (newPointIdx !== -1) {
+      //         // console.log("two connectors found");
+      //       }
+      //       newPointIdx = connectorIdx;
+
+      //     }
+      //   });
+      //   if (newPointIdx === -1) {
+      //     console.log("none found!!!");
+      //   }
+      // });
 
       // console.log(myin);
     });
@@ -579,47 +577,9 @@ const createSides = (bottom, top, currZ, zDiff) => {
     ) {
       // what can happen here is a point was skipped. prev connected to top point, which is also connected to nextPointInBottom, but curr point was skipped
       // even if the nextPointInBtootm is connected to prevAdjNextPoint, but also prevAdj, we want to connect middle points to prevAdj
+      // FIXED ABOVE
       console.log("PROBLEM ___ CLIAM FALSE");
-      // console.log("prevIdx", prevIdx);
-      // console.log("newPointINBOttom", nextPointInBottomIdx);
-      // // console.log(
-      // //   "the inncorect connection",
-      // //   graph.getAdjs([
-      // //     prevAdjNextPoint[0],
-      // //     prevAdjNextPoint[1],
-      // //     currZ + zDiff,
-      // //   ])[0]
-      // // );
-      // bottom.forEach((point, idx) => {
-      //   if (point[0] === 197 && point[1] === 299) {
-      //     console.log("idx of prevAdjNextPoint first connection", idx);
-      //   }
-      // });
-
-      // let nextPointInBottom = bottom[mod(nextPointInBottomIdx, bottom.length)];
-
-      // let nextPointInBOttomAdj = graph.getAdjs([
-      //   nextPointInBottom[0],
-      //   nextPointInBottom[1],
-      //   currZ,
-      // ])[0];
-
-      // top.forEach((point, idx) => {
-      //   if (
-      //     point[0] === nextPointInBOttomAdj[0] &&
-      //     nextPointInBOttomAdj[1] === 298
-      //   ) {
-      //     console.log("idx of next point in bottom top connection", idx);
-      //   }
-      // });
-      // console.log("correct point idx", mod(prevAdjIdx + 1, top.length));
-
-      // console.log("_______");
     }
-
-    // l
-    // let nextPointInBottom = bottom[nextPointInBottomIdx];
-    // points between prevIdx and nextPointInBottomIdx are points that need to be added
 
     if (nextPointInBottomIdx - prevIdx === 2) {
       // there is only one point that needs to be added
