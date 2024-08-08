@@ -96,11 +96,21 @@ const processCrosses = async () => {
   // const crosses = ["firstSet", "secondSet"].map((name) => {
   //   return await makeTriangles("./data/" + name + ".bin");
   // });
-  let bottom = await makeTriangles("./data/firstSet.bin", 0);
-  let top = await makeTriangles("./data/secondSet.bin", 10);
+  let bottom = await makeTriangles("./data/secondSet.bin", 0);
+  let top = await makeTriangles("./data/firstSet.bin", 10);
+  let toptop = await makeTriangles("./data/thirdSet.bin", 20);
   let tris = createSides(bottom.points, top.points, 0, 10);
+  let tristris = createSides(top.points, toptop.points, 10, 10);
   console.log("tri repeats? " + hasRepeatingElements(tris));
-  const stlStr = makeStlFromTrisList([tris, bottom.tris, top.tris]);
+  console.log("tri repeats? " + hasRepeatingElements(tristris));
+
+  const stlStr = makeStlFromTrisList([
+    tris,
+    bottom.tris,
+    top.tris,
+    tristris,
+    toptop.tris,
+  ]);
   writeFile(stlStr, "./data/stl.stl");
 };
 

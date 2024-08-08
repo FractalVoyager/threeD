@@ -318,6 +318,7 @@ const triangulateSides = (graph) => {
 
 // ponts, tris
 const createSides = (bottom, top, currZ, zDiff) => {
+  // this is skipping sometimes TODTODODODOOD
   const findClosestInPlane = (point, isBottomPlane, startIdx, endIdx) => {
     let plane = isBottomPlane ? bottom : top;
     // TODO don't need to do this for every point now
@@ -392,15 +393,6 @@ const createSides = (bottom, top, currZ, zDiff) => {
           biggestDistancePoints[1],
         ];
       } else {
-        // CHECKER
-        if (
-          mod(biggestDistancePoints[1] + biggestDistance, plane.length) !==
-          biggestDistancePoints[0]
-        ) {
-          console.log(
-            "PROBLEMMMMMMM getting order of points in find cloest in plane is wrong"
-          );
-        }
         // want to start at the second and go to the first
         return [
           cloestPoints,

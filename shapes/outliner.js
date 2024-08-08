@@ -88,41 +88,139 @@ const outliner = (arr, length) => {
     },
   ];
 
+  // switch x,y to y,x for array to actual point and vise versa
+  const reversePoint = (point) => {
+    return [point[1], point[0]];
+  };
+
+  const tailDirections = [
+    // 0 and 4 - right
+    // in y, x land
+    (point) => {
+      return [
+        [point[0] - 0.5, point[1]],
+        [point[0] + 0.5, point[1]],
+      ];
+    },
+    // down right as default
+    (point) => {
+      return [
+        [point[0] - 0.5, point[1] + 0.5],
+        [point[0] + 0.5, point[1] - 0.5],
+      ];
+    },
+    // down as deafult
+    (point) => {
+      return [
+        [point[0], point[1] + 0.5],
+        [point[0], point[1] - 0.5],
+      ];
+    },
+    (point) => {
+      return [
+        [point[0] + 0.5, point[1] + 0.5],
+        [point[0] - 0.5, point[1] - 0.5],
+      ];
+    },
+  ];
+
   const findPoints = (startPoint, direction) => {
+    const createTail = (splitPoint, tailEndPoint, direction) => {
+      // this will work on all tails that don't change direction
+      // it will also work on simple split tails
+      // that is, split tails that aren't off of a tail, i.e. a double tail
+      // direction was last direction, so 2 means dinagnoally up, which is really 5, just switching to keep it straight in my head
+      direction = direction + (3 % 8);
+      // look at picures from 8/7/24 for this and tailDirections
+      let simpledDirection = direction % 4;
+      let firstPoint;
+      let secondPoint;
+      if (direction > 4) {
+        // need to reverse ordering
+        [secondPoint, firstPoint] =
+          tailDirections[simpledDirection](splitPoint);
+      } else {
+        // default ordering
+        [firstPoint, secondPoint] =
+          tailDirections[simpledDirection](splitPoint);
+      }
+
+      // TODO figure out directions
+      ordering.push(reversePoint(firstPoint));
+      ordering.push(reversePoint(tailEndPoint));
+      ordering.push(reversePoint(secondPoint));
+    };
+
+    const handleTail = () => {
+      // here, we found a point that has no adjs other than the point it came from
+      // need to store the previous directions so we can pop off
+      // TODO - handle the tails that change direction later
+
+      // point we were just at is the end of the tail
+      let tailEndDirection = directions.pop();
+      // back to array way
+      let tailEndPoint = reversePoint(ordering.pop());
+      console.log("tail end", tailEndPoint, tailEndDirection);
+
+      let tailMinusOneDir = directions.pop();
+      let tailMinusOnePoint = reversePoint(ordering.pop());
+      console.log("tailMinusONePoint", tailMinusOnePoint, tailMinusOneDir);
+      // reason for +4
+      // say we came in at 2 so going digonally up
+      // want to come in one from the point that we just came from, so 7
+      // do it out it works
+      let [possTailEscPoint, possTailEscDir] = findNextPoint(
+        tailMinusOnePoint,
+        (tailEndDirection + 4) % 8
+      );
+      console.log("tail esc", possTailEscPoint, possTailEscDir);
+      // need to check that this tail escape isn't a point we've already been to along the tail
+      // it needs to not be in the same direction as the tails
+      // additonal checks here for tail direction chaning TODO
+      if (tailEndDirection !== possTailEscDir) {
+        createTail(tailMinusOnePoint, tailEndPoint, tailEndDirection);
+        return [possTailEscPoint, possTailEscDir];
+      }
+      // TODO put this in a while loop
+      return false;
+    };
+
+    // stack overflow
+    const findNextPoint = (lastPoint, direction) => {
+      // want to check adjs in order (clockwise) starting at direction (what direction the last point was found at)
+      for (let i = direction; i <= direction + 6; i++) {
+        let dir = i % 8;
+        // point we want
+        let dirPoint = adjs[dir](lastPoint);
+
+        // found next point Theorem 1.2
+        if (arr[dirPoint[0]][dirPoint[1]] === 1) {
+          // our new direction is the direction we came from then up one
+          // which is the opposite of current current then up one, which is where this comes from
+          let newDir = (dir + 5) % 8;
+          // recursive call
+          return [dirPoint, newDir];
+        }
+      }
+      // found point with no adjs to black squares other than the one we came from
+      console.log("logging false");
+      return handleTail();
+      // return false;
+    };
     // could also only have one call to this if I assing start to new
     let [newPoint, newDir] = findNextPoint(startPoint, direction);
     // need to swap order to switch form array of rows to x,y canvas corod
     let ordering = [[newPoint[1], newPoint[0]]];
+    let directions = [newDir];
     while (true) {
       [newPoint, newDir] = findNextPoint(newPoint, newDir);
+      directions.push(newDir);
       ordering.push([newPoint[1], newPoint[0]]);
       if (newPoint[0] === startPoint[0] && newPoint[1] === startPoint[1]) {
         break;
       }
     }
     return ordering;
-  };
-
-  // stack overflow
-  const findNextPoint = (lastPoint, direction) => {
-    // want to check adjs in order (clockwise) starting at direction (what direction the last point was found at)
-    for (let i = direction; i <= direction + 6; i++) {
-      let dir = i % 8;
-      // point we want
-      let dirPoint = adjs[dir](lastPoint);
-
-      // found next point Theorem 1.2
-      if (arr[dirPoint[0]][dirPoint[1]] === 1) {
-        // our new direction is the direction we came from then up one
-        // which is the opposite of current current then up one, which is where this comes from
-        let newDir = (dir + 5) % 8;
-        // recursive call
-        return [dirPoint, newDir];
-      }
-    }
-    // found point with no adjs to black squares other than the one we came from
-    console.log("logging false");
-    return false;
   };
 
   // TODO delete
