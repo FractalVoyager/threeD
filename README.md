@@ -11,6 +11,7 @@
 # Plan
 
 Backlog:
+
 Outline:
 
 - o0: make the tail fcn work for longer straight tails
@@ -21,8 +22,10 @@ Outline:
 - o5: get many more samples and handle all weird parts that haven't been addressed (final check)
   3D Sides:
 - s0: bug fix the initial top down sometimes not only doing points after
+- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
 - s2: throughly test to make sure it is all working as expected
+- s3: clean up createSides file
 
 DOING:
 
-- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
+- s3: clean up createSides file
