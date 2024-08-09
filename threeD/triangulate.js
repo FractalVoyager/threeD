@@ -77,31 +77,6 @@ const squaresToTris = (graph) => {
         // console.log(connector, vertex);
         graph.addEdge(connector, vertex);
       });
-
-      // let adjsStr = adjs.map((adj) => JSON.stringify(adj));
-
-      // // big claim test
-      // let newPointIdx = -1;
-
-      // strandedAjs.forEach((strandedAdj) => {
-      //   let strandedAdjAdjs = graph.getAdjs(strandedAdj);
-      //   strandedAdjAdjs.forEach((adj) => {
-      //     let connectorIdx = adjsStr.indexOf(JSON.stringify(adj));
-      //     if (connectorIdx !== -1) {
-      //       // console.log("stranded adj connector", strandedAdj);
-      //       if (newPointIdx !== -1) {
-      //         // console.log("two connectors found");
-      //       }
-      //       newPointIdx = connectorIdx;
-
-      //     }
-      //   });
-      //   if (newPointIdx === -1) {
-      //     console.log("none found!!!");
-      //   }
-      // });
-
-      // console.log(myin);
     });
   });
   // console.log("additonal", additional);

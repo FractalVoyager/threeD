@@ -10,9 +10,9 @@
 
 # Plan
 
-Backlog:
+## Backlog:
 
-Outline:
+Outline: (o)
 
 - o0: make the tail fcn work for longer straight tails
 - o1: make the tail fcn work for tails that change direction
@@ -20,17 +20,33 @@ Outline:
 - o3: make it work for tails that circle back to the shape (holes - write hole detection fcn)
 - o4: make it work for multiple shapes and single points (think we just want to get rid of these, keep the biggest shape)
 - o5: get many more samples and handle all weird parts that haven't been addressed (final check)
-  3D Sides:
+
+Triangulate 2d shape: (t)
+
+- t0: fix the optimized ear clip triangulate
+- t1: refactor to abstract some stuff out
+
+3D Sides: (s)
+
 - s0: bug fix the initial top down sometimes not only doing points after
-- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
 - s2: throughly test to make sure it is all working as expected
+
+FV stuff: (f)
+
+- f0: fix binary file export to not add those two random points
+- f1: write wasm to return array of black and white points so we can remove the step of converting colored array to black and white
+- f2: make the binary file download a list of all of the given julia sets
+- f3: allow line edits: turn into paroblic curve, set start point, set end point, make straight line, add or subtract points in even spacing
+
+## DOING:
+
+- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
+
+## DONE:
+
 - s3: clean up createSides file
 
-DOING:
-
-- s3: clean up createSides file
-
-DONE:
+# Notes
 
 Notes from createSides.js
 // go through points in smaller plane

@@ -157,6 +157,19 @@ const connectToOtherShapeSecond = (
   zDiff,
   add2DPointsToGraph
 ) => {
+  // intermediate function
+  const handleStrandedPoint = (prevIdx) => {
+    addEdgesToStrandedBottomPoints(
+      prevIdx,
+      bottom,
+      top,
+      graph,
+      currZ,
+      zDiff,
+      add2DPointsToGraph
+    );
+  };
+
   bottom.forEach((point, idx) => {
     if (!graph.hasVertex([point[0], point[1], currZ])) {
       // here, we found one that has no adj
@@ -170,36 +183,11 @@ const connectToOtherShapeSecond = (
           prev = bottom[mod(prevIdx, bottom.length)];
         }
 
-        addEdgesToStrandedBottomPoints(
-          prevIdx,
-          bottom,
-          top,
-          graph,
-          currZ,
-          zDiff,
-          add2DPointsToGraph
-        );
+        handleStrandedPoint(prevIdx);
       } else {
-        addEdgesToStrandedBottomPoints(
-          idx - 1,
-          bottom,
-          top,
-          graph,
-          currZ,
-          zDiff,
-          add2DPointsToGraph
-        );
+        handleStrandedPoint(idx - 1);
       }
     }
-
-    // let connectors = findClosestInPlane(point, false);
-
-    // connectors.forEach((connector) => {
-    //   countOfSmallerToLarger++;
-    //   let topPoint = connector;
-    //   let bottomPoint = point;
-    //   add2DPointsToGraph(topPoint, bottomPoint);
-    // });
   });
 };
 

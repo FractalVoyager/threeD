@@ -104,4 +104,4 @@ const connectToOtherShapeFirst = (top, bottom, add2DPointsToGraph) => {
   console.log("top to bottom", countOfLargerToSmaller);
 };
 
-module.exports = { findClosestInPlane, connectToOtherShapeFirst };
+module.exports = { connectToOtherShapeFirst };
