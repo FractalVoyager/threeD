@@ -81,7 +81,7 @@ const squaresToTris = (graph) => {
   });
   // console.log("additonal", additional);
 
-  console.log(misses);
+  console.log("there are squares in the 3d sides", misses);
 };
 
 // once the graph is all built up
@@ -158,9 +158,9 @@ const triangulateSides = (graph) => {
     });
   });
 
-  console.log("additonal", additional);
+  // console.log("additonal", additional);
 
-  console.log(misses);
+  // console.log(misses);
 };
 
 module.exports = { squaresToTris, triangulateSides };

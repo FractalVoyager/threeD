@@ -1,7 +1,6 @@
 const { mod, get2dDistance } = require("../util/util");
+// this is the new version as of s1 that only connects top points to the first bottom point that is cloest instead of all if they are the same distance
 // this file is for the initial point connection
-// this function is
-// this is skipping sometimes TODTODODODOOD
 const findClosestInPlane = (point, plane, startIdx, endIdx) => {
   // TODO don't need to do this for every point now
   let distances = plane.map((p) => get2dDistance(p, point));
@@ -22,55 +21,12 @@ const findClosestInPlane = (point, plane, startIdx, endIdx) => {
     }
   }
 
-  // this is to handle the case when the first point matches to
-  let biggestDistance = null;
-  let biggestDistancePoints = null;
-  let lastIdx = null;
-  let cloestPoints = closestPointIdxs.map((idx) => {
-    // first point
-    if (lastIdx === null) {
-      lastIdx = idx;
-      // second point
-    } else if (biggestDistance === null) {
-      biggestDistance = mod(idx - lastIdx, plane.length);
-      biggestDistancePoints = [lastIdx, idx];
-      lastIdx = idx;
-      // third or later
-    } else {
-      let distance = mod(idx - lastIdx, plane.length);
-      if (distance > biggestDistance) {
-        biggestDistance = distance;
-        biggestDistancePoints = [lastIdx, idx];
-      }
-      lastIdx = idx;
-    }
-
-    return plane[idx];
-  });
-
-  if (lastIdx === null) {
-    console.log("PROBLEM - no points found in find cloest in plane");
-    return false;
+  if (closestPointIdxs.length === 0) {
+    console.log("PROBLEM - no cloest point");
   }
 
-  // only one point
-  if (biggestDistance === null) {
-    // it is max and min
-    return [cloestPoints, lastIdx, lastIdx];
-  } else {
-    // need to know which one is the "start" and which one is the "end"
-    if (
-      mod(biggestDistancePoints[0] + biggestDistance, plane.length) ===
-      biggestDistancePoints[1]
-    ) {
-      // distance is between the two points from first to second
-      // so want to start at the first and go to the second
-      return [cloestPoints, biggestDistancePoints[0], biggestDistancePoints[1]];
-    } else {
-      // want to start at the second and go to the first
-      return [cloestPoints, biggestDistancePoints[1], biggestDistancePoints[0]];
-    }
-  }
+  let firstClostestIdx = closestPointIdxs[0];
+  return [plane[firstClostestIdx], firstClostestIdx, firstClostestIdx];
 };
 
 const connectToOtherShapeFirst = (top, bottom, add2DPointsToGraph) => {
@@ -82,7 +38,7 @@ const connectToOtherShapeFirst = (top, bottom, add2DPointsToGraph) => {
   // step 3
   let countOfLargerToSmaller = 0;
   top.forEach((point, idx) => {
-    let [connectors, newStartIdx, newEndIdx] = findClosestInPlane(
+    let [connector, newStartIdx, newEndIdx] = findClosestInPlane(
       point,
       bottom,
       startIdx,
@@ -93,15 +49,11 @@ const connectToOtherShapeFirst = (top, bottom, add2DPointsToGraph) => {
     }
     startIdx = newStartIdx;
 
-    // maxIdx is the new starting index
-    connectors.forEach((connector) => {
-      countOfLargerToSmaller++;
-      let topPoint = point;
-      let bottomPoint = connector;
-      add2DPointsToGraph(topPoint, bottomPoint);
-    });
+    let topPoint = point;
+    let bottomPoint = connector;
+    add2DPointsToGraph(topPoint, bottomPoint);
   });
-  console.log("top to bottom", countOfLargerToSmaller);
+  // console.log("top to bottom", countOfLargerToSmaller);
 };
 
 module.exports = { connectToOtherShapeFirst };

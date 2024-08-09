@@ -66,16 +66,16 @@ const makeTriangles = async (filePath, z) => {
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
 
   const oldTrinagles = unOptimizedEarClip(ordering);
-  const triangles = earClip(ordering);
-  console.log("tri repeats? " + hasRepeatingElements(triangles));
+  // const triangles = earClip(ordering);
+  // console.log("tri repeats? " + hasRepeatingElements(triangles));
 
-  console.log(
-    "triangle arrays are same? " + arraysAreDeepEqual(oldTrinagles, triangles)
-  );
-  console.log(
-    "correct number of tris? " +
-      (ordering.length - triangles.length === 2 ? true : false)
-  );
+  // console.log(
+  //   "triangle arrays are same? " + arraysAreDeepEqual(oldTrinagles, triangles)
+  // );
+  // console.log(
+  //   "correct number of tris? " +
+  //     (ordering.length - triangles.length === 2 ? true : false)
+  // );
   writeFile(
     arrayOfPointsToJSON(oldTrinagles, "triangles"),
     "./webViewer/tris.js"

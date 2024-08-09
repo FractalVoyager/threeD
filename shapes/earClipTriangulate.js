@@ -231,7 +231,10 @@ const earClip = (orderedArr) => {
     // go through ears and trim
     // don't think it matters that we reverse the direction of the ears, because we are still using the correct direction when we find the point on either side TODO check
     if (ears.length === 0) {
-      console.log("problem");
+      console.log(
+        "problem, no more ears when there is more than three remaining, all reaming:",
+        allRemaining
+      );
       break;
     }
     let clipped = ears.pop();
