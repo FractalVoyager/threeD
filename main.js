@@ -64,6 +64,7 @@ const makeTriangles = async (filePath, z) => {
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
   );
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
+  // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
   // const triangles = earClip(ordering);
@@ -96,6 +97,8 @@ const processCrosses = async () => {
   // const crosses = ["firstSet", "secondSet"].map((name) => {
   //   return await makeTriangles("./data/" + name + ".bin");
   // });
+  let topFour = await makeTriangles("./data/fourthSet.bin", 30);
+  return;
   let bottom = await makeTriangles("./data/secondSet.bin", 0);
   let top = await makeTriangles("./data/firstSet.bin", 10);
   let toptop = await makeTriangles("./data/thirdSet.bin", 20);

@@ -4,12 +4,12 @@
 
 Outline: (o)
 
-- o0: make the tail fcn work for longer straight tails
 - o1: make the tail fcn work for tails that change direction
 - o2: make it work for tails that split into two more tails (repeating points - need to check for)
 - o3: make it work for tails that circle back to the shape (holes - write hole detection fcn)
 - o4: make it work for multiple shapes and single points (think we just want to get rid of these, keep the biggest shape)
 - o5: get many more samples and handle all weird parts that haven't been addressed (final check)
+- o6: make it so 2-turn tails in clockwise are recongized as 1-turn tails in counter clockwise if that is the case. See pics from 8/9/24
 
 Triangulate 2d shape: (t)
 
@@ -30,13 +30,16 @@ FV stuff: (f)
 
 ## DOING:
 
-- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
+- o0: make the tail fcn work for longer straight tails
 
 ## DONE:
 
 - s3: clean up createSides file
+- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
 
 # Notes
+
+- foruth set is 400res pic with funky stuff
 
 Notes from createSides.js
 // go through points in smaller plane
