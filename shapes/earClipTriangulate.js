@@ -55,9 +55,8 @@ const unOptimizedEarClip = (orderedArr) => {
       // allRemaining = allRemaining.filter(
       //   (vertex, index) => index !== clippedIdx
       // );
-      if (i === 9278) {
+      if (i === 7900) {
         console.log(allRemaining.length);
-        return tris;
       }
     } else {
       i++;
