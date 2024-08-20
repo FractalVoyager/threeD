@@ -135,7 +135,7 @@ const outliner = (arr, length) => {
       let simpledDirection = direction % 4;
       let firstPoint;
       let secondPoint;
-      if (direction > 4) {
+      if (direction >= 4) {
         // need to reverse ordering
         [secondPoint, firstPoint] =
           tailDirections[simpledDirection](splitPoint);
@@ -229,6 +229,13 @@ const outliner = (arr, length) => {
               possTailEscPoint,
               possTailEscDir
             );
+
+            if (
+              JSON.stringify(newTailEscPoint) ===
+              JSON.stringify(reversePoint(ordering[ordering.length - i - 2]))
+            ) {
+              console.log("problem");
+            }
             return [newTailEscPoint, newTailEscDir];
           } else {
             directions.pop();
@@ -260,7 +267,7 @@ const outliner = (arr, length) => {
         // console.log("not weird split point");
       }
 
-      let [firstPoint, secondPoint] = getSplitPoints(point, (newDir + 4) % 8);
+      let [firstPoint, secondPoint] = getSplitPoints(point, (dir + 4) % 8);
       ordering[oldIdx] = reversePoint(firstPoint);
       directions[oldIdx] = -1;
       return secondPoint;

@@ -13,8 +13,10 @@
   <body>
     <canvas id="orig-can" width="400" height="400"></canvas>
     <canvas id="outline-can" width="800" height="800"></canvas>
+    <canvas id="outline-lines-can" width="1600" height="1600"></canvas>
     <canvas id="tris-can" width="800" height="800"></canvas>
     <button id="download-orig-btn">Download Orig Canvas</button>
+    <button id="download-outline-line-btn">Download Outline Line Canvas</button>
     <button id="download-outline-btn">Download Outline Canvas</button>
     <button id="download-tris-btn">Download Triangles Canvas</button>
 
@@ -29,6 +31,11 @@
         .getElementById("download-outline-btn")
         .addEventListener("click", () => {
           downloadCanvas("outline-can", "outline-canvas.png");
+        });
+      document
+        .getElementById("download-outline-line-btn")
+        .addEventListener("click", () => {
+          downloadCanvas("outline-lines-can", "outline-line-canvas.png");
         });
 
       document

@@ -18,6 +18,26 @@ const drawFromPoints = (points) => {
   drawPoints(points);
 };
 
+const drawLinesFromPoints = (points) => {
+  const canvas = document.getElementById("outline-lines-can");
+  const ctx = canvas.getContext("2d");
+
+  for (let i = 0; i < points.length - 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(points[i][0] * 4, points[i][1] * 4);
+    ctx.lineTo(points[i + 1][0] * 4, points[i + 1][1] * 4);
+    ctx.closePath();
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(
+    points[points.length - 1][0] * 4,
+    points[points.length - 1][1] * 4
+  );
+  ctx.lineTo(points[0][0] * 4, points[0][1] * 4);
+  ctx.closePath();
+  ctx.stroke();
+};
 const drawFrom2dArr = (arr) => {
   // Get the canvas element and its context
   const canvas = document.getElementById("orig-can");
@@ -64,4 +84,5 @@ const drawTrinagles = (tris) => {
 
 drawFrom2dArr(orig);
 drawFromPoints(outline);
+drawLinesFromPoints(outline);
 drawTrinagles(triangles);
