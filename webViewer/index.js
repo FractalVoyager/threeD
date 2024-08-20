@@ -10,7 +10,7 @@ const drawFromPoints = (points) => {
     arr.forEach((point) => {
       const [x, y] = point;
       ctx.fillStyle = "black"; // Set the color for the point
-      ctx.fillRect(x, y, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
+      ctx.fillRect(x * 2, y * 2, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
     });
   };
 
