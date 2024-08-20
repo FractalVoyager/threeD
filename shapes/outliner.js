@@ -153,8 +153,12 @@ const outliner = (arr, length) => {
       let [firstPoint, secondPoint] = getSplitPoints(splitPoint, direction);
 
       ordering.push(reversePoint(firstPoint));
+      directions.push(-1);
       ordering.push(reversePoint(tailEndPoint));
+      directions.push(-1);
       ordering.push(reversePoint(secondPoint));
+      directions.push(-1);
+
       // todo add directions
     };
 

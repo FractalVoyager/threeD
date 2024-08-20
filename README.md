@@ -4,12 +4,11 @@
 
 Outline: (o)
 
-- o1: make the tail fcn work for tails that change direction
 - o2: make it work for tails that split into two more tails (repeating points - need to check for)
 - o3: make it work for tails that circle back to the shape (holes - write hole detection fcn)
 - o4: make it work for multiple shapes and single points (think we just want to get rid of these, keep the biggest shape)
 - o5: get many more samples and handle all weird parts that haven't been addressed (final check)
-- o6: make it so 2-turn tails in clockwise are recongized as 1-turn tails in counter clockwise if that is the case. See pics from 8/9/24
+- o6: make it so 2-turn tails in clockwise are recongized as 1-turn tails in counter clockwise if that is the case. See pics from 8/9/24 - should be handled with handling repeated points in o7
 
 Triangulate 2d shape: (t)
 
@@ -31,6 +30,8 @@ FV stuff: (f)
 ## DOING:
 
 - o0: make the tail fcn work for longer straight tails
+- o7: make it work for repeated points (in o0)
+- o1: make the tail fcn work for tails that change direction (in o0)
 
 ## DONE:
 
