@@ -200,15 +200,47 @@ const outliner = (arr, length) => {
             JSON.stringify(reversePoint(ordering[ordering.length - i - 1]))
           ) {
             console.log("point already in ordering");
+            // todo this prob wont work for longer tails that change direction
+            // need to create tail with point and tail endpoint, also need to split this wrong escape point
+            // split wrong escape point
+            let [endTailStart, endTailEnd] = getSplitPoints(
+              possTailEscPoint,
+              (possTailEscDir + 4) % 8
+            );
+            let [middleStart, middleEnd] = getSplitPoints(
+              point,
+              tailEndDirection
+            );
+            directions.pop();
+            directions.pop();
+            ordering.pop();
+            ordering.pop();
+            ordering.push(
+              reversePoint(endTailStart),
+              reversePoint(middleStart),
+              reversePoint(tailEndPoint),
+              reversePoint(middleEnd),
+              reversePoint(endTailEnd)
+            );
+            directions.push(-1, -1, -1, -1, -1);
+
+            // then find a new esc point that works - todo this just gets the next one
+            let [newTailEscPoint, newTailEscDir] = findNextPoint(
+              possTailEscPoint,
+              possTailEscDir
+            );
+            return [newTailEscPoint, newTailEscDir];
+          } else {
+            directions.pop();
+            ordering.pop();
+
+            createTail(point, tailEndPoint, tailEndDirection);
+            // todo make this pop all
+
+            return [possTailEscPoint, possTailEscDir];
           }
-          directions.pop();
-          ordering.pop();
-
-          createTail(point, tailEndPoint, tailEndDirection);
-          // todo make this pop all
-
-          return [possTailEscPoint, possTailEscDir];
         } else {
+          // here we just split mid tail points
           console.log("OOPS");
         }
       }
@@ -219,13 +251,13 @@ const outliner = (arr, length) => {
     const handleRepeatedPoint = (point, dir, oldIdx) => {
       // we want to split this point
       let oldDir = directions[oldIdx];
-      console.log(point);
+      // console.log(point);
 
-      // this is a case where it could be a seongle point connectiong shapes or something that isn't handled correctly with this
+      // this is a case where it could be a seongle point connectiong shapes or something that isn't handled correctly with this - think that it works well enough
       if ((oldDir + 4) % 8 !== dir) {
-        console.log("WEIRD SPLIT POINT");
+        // console.log("WEIRD SPLIT POINT");
       } else {
-        console.log("not weird split point");
+        // console.log("not weird split point");
       }
 
       let [firstPoint, secondPoint] = getSplitPoints(point, (newDir + 4) % 8);
@@ -278,9 +310,9 @@ const outliner = (arr, length) => {
       if (newPoint[0] === startPoint[0] && newPoint[1] === startPoint[1]) {
         break;
       }
-      if (newPoint[0] === 144 && newPoint[1] === 221) {
-        return ordering;
-      }
+      // if (newPoint[0] === 144 && newPoint[1] === 221) {
+      //   return ordering;
+      // }
     }
     return ordering;
   };

@@ -64,7 +64,7 @@ const makeTriangles = async (filePath, z) => {
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
   );
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
-  return;
+  // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
   // const triangles = earClip(ordering);
@@ -104,6 +104,7 @@ const processCrosses = async () => {
   let toptop = await makeTriangles("./data/thirdSet.bin", 20);
   let tris = createSides(bottom.points, top.points, 0, 10);
   let tristris = createSides(top.points, toptop.points, 10, 10);
+  let topTris = createSides(toptop.points, topFour.points, 20, 10);
   console.log("tri repeats? " + hasRepeatingElements(tris));
   console.log("tri repeats? " + hasRepeatingElements(tristris));
 
@@ -113,6 +114,8 @@ const processCrosses = async () => {
     top.tris,
     tristris,
     toptop.tris,
+    topFour.tris,
+    topTris,
   ]);
   writeFile(stlStr, "./data/stl.stl");
 };
