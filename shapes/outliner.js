@@ -4,6 +4,44 @@
 
 const { dir } = require("console");
 
+const isColinear = (a, b, c) => {
+  const val = (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1]);
+  if (val === 0) {
+    return true;
+  } // collinear
+  return false; // clockwise or counterclockwise --- want clockwise - 1
+};
+
+const handlePointsAlongLine = (ordering) => {
+  // todo handle first point - use mods
+  let newPoints = [];
+  for (let i = 1; i < ordering.length - 1; i++) {
+    // if the direction from prev point to this point is opposite of dir from this point to next we want to get rid of it
+    if (isColinear(ordering[i - 1], ordering[i], ordering[i + 1])) {
+      // console.log("is colinear");
+      let dotProd =
+        (ordering[i][0] - ordering[i - 1][0]) *
+          (ordering[i + 1][0] - ordering[i][0]) +
+        (ordering[i][1] - ordering[i - 1][1]) *
+          (ordering[i + 1][1] - ordering[i][1]);
+      // B.x - A.x * C.x - B.x, +B.y - A.y * C.y - B.y;
+      if (dotProd < 0) {
+        console.log("real one");
+      } else {
+        newPoints.push(ordering[i - 1]);
+      }
+
+      // if (dotProduct < 0) {
+      //   // Directions are opposite, skip point B
+      //   console.log("really colinear");
+      // }
+    } else {
+      newPoints.push(ordering[i - 1]);
+    }
+  }
+  return newPoints;
+};
+
 // can easilly switch this back to 1d array if performance issues but for now this is easier to deal with
 const outliner = (arr, length) => {
   // goal: given an array of points, find a point ordering to outline that shape
@@ -321,6 +359,8 @@ const outliner = (arr, length) => {
       //   return ordering;
       // }
     }
+
+    return handlePointsAlongLine(ordering);
     return ordering;
   };
 
