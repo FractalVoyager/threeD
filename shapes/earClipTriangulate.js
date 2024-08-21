@@ -7,21 +7,51 @@ const unOptimizedEarClip = (orderedArr) => {
   let allRemaining = JSON.parse(JSON.stringify(orderedArr));
   let tris = [];
 
-  for (let i = 0; i < allRemaining.length; i++) {
-    let iIdx = orderedArr.indexOf(allRemaining[i]);
-    if (iIdx === -1) {
-      console.log("WTF");
-      console.log(orderedArr[i]);
-      console.log(orderedArr[i]);
-    }
-  }
-
   const orientation = (a, b, c) => {
     const val = (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1]);
     if (val === 0) {
       return 0;
     } // collinear
     return val > 0 ? 1 : 2; // clockwise or counterclockwise --- want clockwise - 1
+  };
+
+  const hasPointsInside = (a, b, c) => {
+    const triangleArea = Math.abs(
+      0.5 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]))
+    );
+
+    for (let i = 0; i < allRemaining.length; i++) {
+      const p = allRemaining[i];
+
+      // Skip the vertices of the triangle itself
+      if (p === a || p === b || p === c) {
+        continue;
+      }
+
+      const area1 = Math.abs(
+        0.5 *
+          (p[0] * (b[1] - c[1]) + b[0] * (c[1] - p[1]) + c[0] * (p[1] - b[1]))
+      );
+
+      const area2 = Math.abs(
+        0.5 *
+          (a[0] * (p[1] - c[1]) + p[0] * (c[1] - a[1]) + c[0] * (a[1] - p[1]))
+      );
+
+      const area3 = Math.abs(
+        0.5 *
+          (a[0] * (b[1] - p[1]) + b[0] * (p[1] - a[1]) + p[0] * (a[1] - b[1]))
+      );
+
+      const totalArea = area1 + area2 + area3;
+
+      // If the sum of the areas equals the triangle's area, the point lies inside
+      if (Math.abs(triangleArea - totalArea) < 1e-9) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   const pointInTri = (point, tri) => {
@@ -35,15 +65,15 @@ const unOptimizedEarClip = (orderedArr) => {
   };
 
   // check if triangle has other points inside it
-  const hasPointsInside = (a, b, c) => {
-    // only need to check reflex verticies CLAIM - especially questionable that you don't need to check colinear vertices but at one point I was confident
-    for (let i = 0; i < allRemaining.length; i++) {
-      if (pointInTri(allRemaining[i], [a, b, c])) {
-        return true;
-      }
-    }
-    return false;
-  };
+  // const hasPointsInside = (a, b, c) => {
+  //   // only need to check reflex verticies CLAIM - especially questionable that you don't need to check colinear vertices but at one point I was confident
+  //   for (let i = 0; i < allRemaining.length; i++) {
+  //     if (pointInTri(allRemaining[i], [a, b, c])) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // };
   let i = 0;
   console.log(allRemaining.length);
   while (allRemaining.length > 3) {
@@ -67,20 +97,20 @@ const unOptimizedEarClip = (orderedArr) => {
       //   )
       // );
 
-      if (i === 8007) {
-        // for (let i = 0; i < allRemaining.length - 1; i++) {
-        //   let iIdx = orderedArr.indexOf(allRemaining[i]);
-        //   let plusIdx = orderedArr.indexOf(allRemaining[i + 1]);
-        //   if (iIdx === -1 || plusIdx === -1) {
-        //     console.log("WTF");
-        //   }
-        //   if (iIdx > plusIdx) {
-        //     console.log(iIdx, plusIdx);
-        //   }
-        // }
-        console.log(allRemaining.length);
-        return allRemaining;
-      }
+      // if (i === 8007) {
+      //   // for (let i = 0; i < allRemaining.length - 1; i++) {
+      //   //   let iIdx = orderedArr.indexOf(allRemaining[i]);
+      //   //   let plusIdx = orderedArr.indexOf(allRemaining[i + 1]);
+      //   //   if (iIdx === -1 || plusIdx === -1) {
+      //   //     console.log("WTF");
+      //   //   }
+      //   //   if (iIdx > plusIdx) {
+      //   //     console.log(iIdx, plusIdx);
+      //   //   }
+      //   // }
+      //   console.log(allRemaining.length);
+      //   return allRemaining;
+      // }
     } else {
       i++;
     }

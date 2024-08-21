@@ -103,7 +103,6 @@ const processCrosses = async () => {
   //   return await makeTriangles("./data/" + name + ".bin");
   // });
   let topFour = await makeTriangles("./data/fourthSet.bin", 30);
-  return;
   let bottom = await makeTriangles("./data/secondSet.bin", 0);
   let top = await makeTriangles("./data/firstSet.bin", 10);
   let toptop = await makeTriangles("./data/thirdSet.bin", 20);
@@ -114,10 +113,10 @@ const processCrosses = async () => {
   console.log("tri repeats? " + hasRepeatingElements(tristris));
 
   const stlStr = makeStlFromTrisList([
-    tris,
-    bottom.tris,
-    top.tris,
-    tristris,
+    // tris,
+    // bottom.tris,
+    // top.tris,
+    // tristris,
     toptop.tris,
     topFour.tris,
     topTris,
