@@ -7,6 +7,15 @@ const unOptimizedEarClip = (orderedArr) => {
   let allRemaining = JSON.parse(JSON.stringify(orderedArr));
   let tris = [];
 
+  for (let i = 0; i < allRemaining.length; i++) {
+    let iIdx = orderedArr.indexOf(allRemaining[i]);
+    if (iIdx === -1) {
+      console.log("WTF");
+      console.log(orderedArr[i]);
+      console.log(orderedArr[i]);
+    }
+  }
+
   const orientation = (a, b, c) => {
     const val = (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1]);
     if (val === 0) {
@@ -47,16 +56,30 @@ const unOptimizedEarClip = (orderedArr) => {
     let right = allRemaining[mod(clippedIdx + 1, remainingLength)];
 
     if (
-      orientation(left, clipped, right) !== 1 &&
+      orientation(left, clipped, right) === 2 &&
       !hasPointsInside(left, clipped, right)
     ) {
       tris.push([left, clipped, right]);
       allRemaining.splice(clippedIdx, 1);
-      // allRemaining = allRemaining.filter(
-      //   (vertex, index) => index !== clippedIdx
+      // allRemaining = JSON.parse(
+      //   JSON.stringify(
+      //     allRemaining.filter((vertex, index) => index !== clippedIdx)
+      //   )
       // );
-      if (i === 7798) {
+
+      if (i === 8007) {
+        // for (let i = 0; i < allRemaining.length - 1; i++) {
+        //   let iIdx = orderedArr.indexOf(allRemaining[i]);
+        //   let plusIdx = orderedArr.indexOf(allRemaining[i + 1]);
+        //   if (iIdx === -1 || plusIdx === -1) {
+        //     console.log("WTF");
+        //   }
+        //   if (iIdx > plusIdx) {
+        //     console.log(iIdx, plusIdx);
+        //   }
+        // }
         console.log(allRemaining.length);
+        return allRemaining;
       }
     } else {
       i++;

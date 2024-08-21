@@ -63,10 +63,15 @@ const makeTriangles = async (filePath, z) => {
   console.log(
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
   );
-  writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
+  // writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
   // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
+  writeFile(
+    arrayOfPointsToJSON(oldTrinagles, "outline"),
+    "./webViewer/outline.js"
+  );
+
   // const triangles = earClip(ordering);
   // console.log("tri repeats? " + hasRepeatingElements(triangles));
 
