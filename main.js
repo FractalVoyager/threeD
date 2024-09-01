@@ -48,17 +48,21 @@ function hasRepeatingElements(arr) {
   return false;
 }
 
-const makeTriangles = async (filePath, z) => {
+const makeTriangles = async (pixelArray, z) => {
   // const filePath = "./data/firstSet.bin";
 
-  const data = await readBinaryFile(filePath);
-  const pixelArray = convertByteArrayToPixelArray(data);
+  // const data = await readBinaryFile(filePath);
+  // const pixelArray = convertByteArrayToPixelArray(data);
 
   // length of canvas
   let length = Math.sqrt(pixelArray.length);
+
   // const pointsArr = pixelArrayToPoints(pixelArray);
   const twoDPixelArr = pixelArrTo2dPixelArr(pixelArray);
+
   writeFile(arrayOfPointsToJSON(twoDPixelArr, "orig"), "./webViewer/orig.js");
+  // console.log(twoDPixelArr);
+  // return;
   const ordering = outliner(twoDPixelArr, length);
   console.log(
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
@@ -127,7 +131,11 @@ const processFullBinary = async (filePath) => {
 };
 
 const processCrosses = async () => {
-  let pixelArrs = await processFullBinary("./data/largeTest.bin");
+  let pixelArrs = await processFullBinary("./data/curr.bin");
+
+  let topFour = await makeTriangles(pixelArrs[0], 0);
+  return;
+
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
   const orderings = pixelArrs.map((pixelArr, idx) => {

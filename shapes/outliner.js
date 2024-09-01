@@ -4,6 +4,14 @@
 
 const { dir } = require("console");
 
+const getNextStartPoint = (x, y, len) => {
+  if (x === len) {
+    return [x, y + 1];
+  } else {
+    return [x + 1, y];
+  }
+};
+
 const isColinear = (a, b, c) => {
   const val = (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1]);
   if (val === 0) {
@@ -49,9 +57,12 @@ const outliner = (arr, length) => {
 
   // need to find a good start point on the edge
   // Theorem 1.1
-  const findStartPoint = () => {
-    for (let row = 0; row < length; row++) {
-      for (let col = 0; col < length; col++) {
+  const findStartPoint = (startY, startX) => {
+    for (let row = startY; row < length; row++) {
+      if (row > startY) {
+        startX = 0;
+      }
+      for (let col = startX; col < length; col++) {
         // found black point
         if (arr[row][col] === 1) {
           return [row, col];
@@ -205,6 +216,11 @@ const outliner = (arr, length) => {
       // need to store the previous directions so we can pop off
       // TODO - handle the tails that change direction later
 
+      // first point has no adjs
+      if (directions.length === 0) {
+        return [false, false];
+      }
+
       // point we were just at is the end of the tail
       let tailEndDirection = directions.pop();
       // back to array way
@@ -289,8 +305,24 @@ const outliner = (arr, length) => {
           console.log("OOPS");
         }
       }
+
+      // don't think I need this if properly handling skipping shapes
+      // if (ordering.length === 0) {
+      //   console.log("special start on middle of tail with none in ordering");
+      //   // console.log(startPoint);
+      //   // think this covers everything? But really not super sure, even though it looks liek it doensn't think aobut it it should, other longer tials should be covered with normal thing
+      //   let [possTailEscPoint, possTailEscDir] = findNextPoint(
+      //     startPoint,
+      //     (tailEndDirection + 4) % 8
+      //   );
+      //   console.log("tail esc", possTailEscPoint, possTailEscDir);
+      //   createTail(startPoint, tailEndPoint, tailEndDirection);
+      //   return [possTailEscPoint, possTailEscDir];
+      //   // console.log(possTailEscPoint);
+      // } else {
       console.log("no tail esc found");
       return false;
+      // }
     };
 
     const handleRepeatedPoint = (point, dir, oldIdx) => {
@@ -332,11 +364,17 @@ const outliner = (arr, length) => {
       return handleTail();
       // return false;
     };
+    let ordering = [];
+    let directions = [];
     // could also only have one call to this if I assing start to new
     let [newPoint, newDir] = findNextPoint(startPoint, direction);
+    if (!newPoint) {
+      // start point was stranded, find a new one
+      return false;
+    }
     // need to swap order to switch form array of rows to x,y canvas corod
-    let ordering = [[newPoint[1], newPoint[0]]];
-    let directions = [newDir];
+    ordering.push([newPoint[1], newPoint[0]]);
+    directions.push(newDir);
     while (true) {
       [newPoint, newDir] = findNextPoint(newPoint, newDir);
       let realPoint = newPoint;
@@ -364,36 +402,54 @@ const outliner = (arr, length) => {
     return ordering;
   };
 
-  const startPoint = findStartPoint();
   // the point you just came from is on the left, so you're moving right
   // so the first point to check is upper left which is at idx 5
   // these points in y,x
   // also in clockwise order
-  const ordering = findPoints(startPoint, 5);
+
+  /// START ////
+  let ordering = false;
+  let startPoint;
+  let startX = 0;
+  let startY = 0;
+  // points to start looking for next one
+  while (ordering === false) {
+    startPoint = findStartPoint(startY, startX);
+    console.log("start point", startPoint);
+    ordering = findPoints(startPoint, 5);
+
+    // start point had no adjs
+    if (ordering === false) {
+      // get new starts based on old
+      // startPoint is y,x
+      [startX, startY] = getNextStartPoint(
+        startPoint[1],
+        startPoint[0],
+        length
+      );
+    } else {
+      // if the shape is small, prob not full shape
+      if (ordering.length < length / 2) {
+        let largestY = ordering.reduce((acc, point) => {
+          if (point[1] > acc) {
+            return point[1];
+          }
+          return acc;
+        }, 0);
+        let largestYs = ordering.filter((point) => point[1] === largestY);
+        let largestX = largestYs.reduce((acc, point) => {
+          if (point[0] > acc) {
+            return point[0];
+          }
+          return acc;
+        }, 0);
+        console.log(ordering);
+        console.log("largest x,y", largestX, largestY);
+        // ordering = false;
+      }
+    }
+  }
   return ordering;
-
-  // console.log(findNextPoint(startPoint, 5));
-};
-
-// old
-// point is x,y corodinate
-// is black is true if looking for black adjs, false if white
-const findColorAdj = (point, isBlack) => {
-  // // goes through each point
-  // for (let x = -1; x <= 1; x++) {
-  //   for (let y = -1; y <= 1; y++) {
-  //     // self
-  //     if (x === 0 && y == 0) {
-  //       continue;
-  //     }
-  //     // adjacent white point
-  //     if (arr[point[0] + x][point[1] + y] === (isBlack ? 1 : 0)) {
-  //       true;
-  //     }
-  //   }
-  // }
-  // no correct adjs found
-  return false;
 };
 
 module.exports = { outliner };
