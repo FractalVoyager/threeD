@@ -225,11 +225,11 @@ const outliner = (arr, length) => {
       let tailEndDirection = directions.pop();
       // back to array way
       let tailEndPoint = reversePoint(ordering.pop());
-      console.log("tail end", tailEndPoint, tailEndDirection);
+      // console.log("tail end", tailEndPoint, tailEndDirection);
       for (let i = 1; i < ordering.length; i++) {
         let point = reversePoint(ordering[ordering.length - i]);
         let direction = directions[directions.length - i];
-        console.log("point", point, direction);
+        // console.log("point", point, direction);
         // reason for +4
         // say we came in at 2 so going digonally up
         // want to come in one from the point that we just came from, so 7
@@ -243,16 +243,16 @@ const outliner = (arr, length) => {
           // need to check that this tail escape isn't a point we've already been to along the tail
           // it needs to not be in the same direction as the tails
           // additonal checks here for tail direction chaning TODO
-          console.log("tail esc", possTailEscPoint, possTailEscDir);
-          console.log(
-            "prev point",
-            reversePoint(ordering[ordering.length - i - 1])
-          );
+          // console.log("tail esc", possTailEscPoint, possTailEscDir);
+          // console.log(
+          //   "prev point",
+          //   reversePoint(ordering[ordering.length - i - 1])
+          // );
           if (
             JSON.stringify(possTailEscPoint) ===
             JSON.stringify(reversePoint(ordering[ordering.length - i - 1]))
           ) {
-            console.log("point already in ordering");
+            // console.log("point already in ordering");
             // todo this prob wont work for longer tails that change direction
             // need to create tail with point and tail endpoint, also need to split this wrong escape point
             // split wrong escape point
@@ -305,8 +305,24 @@ const outliner = (arr, length) => {
         }
       }
 
+      if (ordering.length === 0) {
+        console.log("first found point is tail end");
+        let [possTailEscPoint, possTailEscDir] = findNextPoint(
+          startPoint,
+          (tailEndDirection + 4) % 8
+        );
+        if (!possTailEscPoint) {
+          // this means we picked a 2 by shape
+          return [false, false];
+        }
+
+        // not sure this will work, might not ever find start or something weird
+        createTail(startPoint, tailEndPoint, tailEndDirection);
+        return [possTailEscPoint, possTailEscDir];
+      }
+
       if (ordering.length === 1) {
-        console.log("third found point is tail end");
+        console.log("second found point is tail end");
         let point = reversePoint(ordering.pop());
         let [possTailEscPoint, possTailEscDir] = findNextPoint(
           point,
@@ -348,6 +364,8 @@ const outliner = (arr, length) => {
       //   createTail(point, tailEndPoint, tailEndDirection);
       //   return [possTailEscPoint, possTailEscDir];
       console.log("no tail esc found");
+      console.error("no tail escape foud");
+      exit();
       return false;
       // }
     };
@@ -405,6 +423,9 @@ const outliner = (arr, length) => {
     while (true) {
       // console.log(newPoint);
       [newPoint, newDir] = findNextPoint(newPoint, newDir);
+      if (newPoint === false) {
+        return false;
+      }
       let realPoint = newPoint;
       // check if it has already been in the ordering
       ordering.every((point, idx) => {
@@ -436,7 +457,7 @@ const outliner = (arr, length) => {
   // also in clockwise order
 
   /// START ////
-  console.log(arr[381][542]);
+  // console.log(arr[381][542]);
   let ordering = false;
   let startPoint;
   let startX = 0;

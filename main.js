@@ -133,12 +133,15 @@ const processFullBinary = async (filePath) => {
 const processCrosses = async () => {
   let pixelArrs = await processFullBinary("./data/curr.bin");
 
+  let problem = await makeTriangles(pixelArrs[23], 0);
   // let topFour = await makeTriangles(pixelArrs[0], 0);
-  // return;
+  return;
 
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
   const orderings = pixelArrs.map((pixelArr, idx) => {
+    console.log("2d layer: ", idx);
+
     // make 2 d arr
     let twoDPixelArr = pixelArrTo2dPixelArr(pixelArr);
     // return ordering ordering
@@ -148,6 +151,7 @@ const processCrosses = async () => {
   let allTris = [];
 
   for (let i = 0; i < orderings.length - 1; i++) {
+    console.log("3d layer: ", i);
     let bottom = orderings[i];
     let top = orderings[i + 1];
     let sides = createSides(bottom, top, step * i, step);
