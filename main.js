@@ -129,7 +129,7 @@ const processFullBinary = async (filePath) => {
 const processCrosses = async () => {
   let pixelArrs = await processFullBinary("./data/currFullSet.bin");
   const width = Math.sqrt(pixelArrs[0].length);
-  const step = Math.floor(width / pixelArrs.length);
+  const step = Math.floor(width / 3 / pixelArrs.length);
   const orderings = pixelArrs.map((pixelArr, idx) => {
     // make 2 d arr
     let twoDPixelArr = pixelArrTo2dPixelArr(pixelArr);
