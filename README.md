@@ -4,12 +4,10 @@
 
 Outline: (o)
 
-- o0: make the tail fcn work for longer straight tails
-- o1: make the tail fcn work for tails that change direction
-- o2: make it work for tails that split into two more tails (repeating points - need to check for)
 - o3: make it work for tails that circle back to the shape (holes - write hole detection fcn)
 - o4: make it work for multiple shapes and single points (think we just want to get rid of these, keep the biggest shape)
 - o5: get many more samples and handle all weird parts that haven't been addressed (final check)
+- o6: make it so 2-turn tails in clockwise are recongized as 1-turn tails in counter clockwise if that is the case. See pics from 8/9/24 - should be handled with handling repeated points in o7
 
 Triangulate 2d shape: (t)
 
@@ -23,20 +21,31 @@ Triangulate 2d shape: (t)
 
 FV stuff: (f)
 
-- f0: fix binary file export to not add those two random points
-- f1: write wasm to return array of black and white points so we can remove the step of converting colored array to black and white
-- f2: make the binary file download a list of all of the given julia sets
-- f3: allow line edits: turn into paroblic curve, set start point, set end point, make straight line, add or subtract points in even spacing
+- f4: allow set start and end point for line
 
 ## DOING:
 
-- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
+- o8: make it work for if the first point is
+  - a tail
+  - not on the main large shape
 
 ## DONE:
 
+- f0: fix binary file export to not add those two random points
+- f2: make the binary file download a list of all of the given julia sets
+- f3: allow line edits: turn into paroblic curve, set start point, make straight line, add or subtract points in even spacing
+- f1: write wasm to return array of black and white points so we can remove the step of converting colored array to black and white
+- o0: make the tail fcn work for longer straight tails (needs good check - checked on one shape)
+- o7: make it work for repeated points (in o0) (needs good check - checked on one shape)
+- o1: make the tail fcn work for tails that change direction (in o0) (needs good check - checked on one shape)
+- o2: make it work for tails that split into two more tails (repeating points - need to check for) (this should be handled in o0) (needs a check - don't think I've checked this but should work - maybe have)
+
 - s3: clean up createSides file
+- s1: try different strategy in top down to only go to one point in bottom plane (first in order) instead of all
 
 # Notes
+
+- foruth set is 400res pic with funky stuff
 
 Notes from createSides.js
 // go through points in smaller plane

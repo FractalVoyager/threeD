@@ -10,7 +10,7 @@ const drawFromPoints = (points) => {
     arr.forEach((point) => {
       const [x, y] = point;
       ctx.fillStyle = "black"; // Set the color for the point
-      ctx.fillRect(x, y, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
+      ctx.fillRect(x * 2, y * 2, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
     });
   };
 
@@ -18,6 +18,26 @@ const drawFromPoints = (points) => {
   drawPoints(points);
 };
 
+const drawLinesFromPoints = (points) => {
+  const canvas = document.getElementById("outline-lines-can");
+  const ctx = canvas.getContext("2d");
+
+  for (let i = 0; i < points.length - 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(points[i][0] * 4, points[i][1] * 4);
+    ctx.lineTo(points[i + 1][0] * 4, points[i + 1][1] * 4);
+    ctx.closePath();
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(
+    points[points.length - 1][0] * 4,
+    points[points.length - 1][1] * 4
+  );
+  ctx.lineTo(points[0][0] * 4, points[0][1] * 4);
+  ctx.closePath();
+  ctx.stroke();
+};
 const drawFrom2dArr = (arr) => {
   // Get the canvas element and its context
   const canvas = document.getElementById("orig-can");
@@ -47,11 +67,11 @@ const drawTrinagles = (tris) => {
 
   const drawTrinagle = (tri) => {
     ctx.beginPath();
-    ctx.moveTo(tri[0][0], tri[0][1]);
+    ctx.moveTo(tri[0][0] * 4, tri[0][1] * 4);
     // line from first to second
-    ctx.lineTo(tri[1][0], tri[1][1]);
+    ctx.lineTo(tri[1][0] * 4, tri[1][1] * 4);
     // line from first to third
-    ctx.lineTo(tri[2][0], tri[2][1]);
+    ctx.lineTo(tri[2][0] * 4, tri[2][1] * 4);
     // line from third to first
     ctx.closePath();
     ctx.stroke();
@@ -64,4 +84,5 @@ const drawTrinagles = (tris) => {
 
 drawFrom2dArr(orig);
 drawFromPoints(outline);
+drawLinesFromPoints(outline);
 drawTrinagles(triangles);

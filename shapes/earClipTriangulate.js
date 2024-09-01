@@ -15,6 +15,45 @@ const unOptimizedEarClip = (orderedArr) => {
     return val > 0 ? 1 : 2; // clockwise or counterclockwise --- want clockwise - 1
   };
 
+  const hasPointsInside = (a, b, c) => {
+    const triangleArea = Math.abs(
+      0.5 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]))
+    );
+
+    for (let i = 0; i < allRemaining.length; i++) {
+      const p = allRemaining[i];
+
+      // Skip the vertices of the triangle itself
+      if (p === a || p === b || p === c) {
+        continue;
+      }
+
+      const area1 = Math.abs(
+        0.5 *
+          (p[0] * (b[1] - c[1]) + b[0] * (c[1] - p[1]) + c[0] * (p[1] - b[1]))
+      );
+
+      const area2 = Math.abs(
+        0.5 *
+          (a[0] * (p[1] - c[1]) + p[0] * (c[1] - a[1]) + c[0] * (a[1] - p[1]))
+      );
+
+      const area3 = Math.abs(
+        0.5 *
+          (a[0] * (b[1] - p[1]) + b[0] * (p[1] - a[1]) + p[0] * (a[1] - b[1]))
+      );
+
+      const totalArea = area1 + area2 + area3;
+
+      // If the sum of the areas equals the triangle's area, the point lies inside
+      if (Math.abs(triangleArea - totalArea) < 1e-9) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const pointInTri = (point, tri) => {
     if (point === tri[0] || point === tri[1] || point === tri[2]) {
       return false;
@@ -26,16 +65,17 @@ const unOptimizedEarClip = (orderedArr) => {
   };
 
   // check if triangle has other points inside it
-  const hasPointsInside = (a, b, c) => {
-    // only need to check reflex verticies CLAIM - especially questionable that you don't need to check colinear vertices but at one point I was confident
-    for (let i = 0; i < allRemaining.length; i++) {
-      if (pointInTri(allRemaining[i], [a, b, c])) {
-        return true;
-      }
-    }
-    return false;
-  };
+  // const hasPointsInside = (a, b, c) => {
+  //   // only need to check reflex verticies CLAIM - especially questionable that you don't need to check colinear vertices but at one point I was confident
+  //   for (let i = 0; i < allRemaining.length; i++) {
+  //     if (pointInTri(allRemaining[i], [a, b, c])) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // };
   let i = 0;
+  console.log(allRemaining.length);
   while (allRemaining.length > 3) {
     let remainingLength = allRemaining.length;
 
@@ -46,14 +86,31 @@ const unOptimizedEarClip = (orderedArr) => {
     let right = allRemaining[mod(clippedIdx + 1, remainingLength)];
 
     if (
-      orientation(left, clipped, right) !== 1 &&
+      orientation(left, clipped, right) === 2 &&
       !hasPointsInside(left, clipped, right)
     ) {
       tris.push([left, clipped, right]);
       allRemaining.splice(clippedIdx, 1);
-      // allRemaining = allRemaining.filter(
-      //   (vertex, index) => index !== clippedIdx
+      // allRemaining = JSON.parse(
+      //   JSON.stringify(
+      //     allRemaining.filter((vertex, index) => index !== clippedIdx)
+      //   )
       // );
+
+      // if (i === 8007) {
+      //   // for (let i = 0; i < allRemaining.length - 1; i++) {
+      //   //   let iIdx = orderedArr.indexOf(allRemaining[i]);
+      //   //   let plusIdx = orderedArr.indexOf(allRemaining[i + 1]);
+      //   //   if (iIdx === -1 || plusIdx === -1) {
+      //   //     console.log("WTF");
+      //   //   }
+      //   //   if (iIdx > plusIdx) {
+      //   //     console.log(iIdx, plusIdx);
+      //   //   }
+      //   // }
+      //   console.log(allRemaining.length);
+      //   return allRemaining;
+      // }
     } else {
       i++;
     }
