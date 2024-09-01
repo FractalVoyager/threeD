@@ -201,13 +201,18 @@ const outliner = (arr, length) => {
       // that is, split tails that aren't off of a tail, i.e. a double tail
       let [firstPoint, secondPoint] = getSplitPoints(splitPoint, direction);
       console.log(direction, "dirrrrr");
-
+      let interDir = direction;
+      if (interDir === 0) {
+        interDir = -10;
+      } else {
+        interDir = interDir * -1;
+      }
       ordering.push(reversePoint(firstPoint));
-      directions.push(-1);
+      directions.push(-30);
       ordering.push(reversePoint(tailEndPoint));
-      directions.push(-1);
+      directions.push(-40);
       ordering.push(reversePoint(secondPoint));
-      directions.push(direction * -1);
+      directions.push(interDir);
 
       // todo add directions
     };
@@ -240,7 +245,13 @@ const outliner = (arr, length) => {
         if (direction < 0) {
           console.log("Heerere", direction);
           // need to reverse point this should work
-          let newDir = (direction + 4) % 8;
+          let newDir;
+          if (direction === -10) {
+            newDir = 0;
+          } else {
+            newDir = direction * -1;
+          }
+          newDir = (newDir + 4) % 8;
           let interDirForSplit = (newDir + 3) % 8;
           let simpledDir = interDirForSplit % 4;
           console.log(
@@ -267,7 +278,7 @@ const outliner = (arr, length) => {
 
           // shouldn't cause any crossing if we just got to the next point
           ordering.push(tailEndPoint);
-          directions.push(-1);
+          directions.push(-20);
           return [herePossTailEscPoint, herePossTailEscDir];
         }
 
@@ -315,7 +326,13 @@ const outliner = (arr, length) => {
               reversePoint(middleEnd),
               reversePoint(endTailEnd)
             );
-            directions.push(-1, -1, -1, -1, ((possTailEscDir + 4) % 8) * -1);
+            let interDir = (possTailEscDir + 4) % 8;
+            if (interDir === 0) {
+              interDir = -10;
+            } else {
+              interDir = interDir * -1;
+            }
+            directions.push(-12, -13, -14, -15, interDir);
 
             // then find a new esc point that works - todo this just gets the next one
             let [newTailEscPoint, newTailEscDir] = findNextPoint(
@@ -413,6 +430,9 @@ const outliner = (arr, length) => {
     const handleRepeatedPoint = (point, dir, oldIdx) => {
       // we want to split this point
       let oldDir = directions[oldIdx];
+      if (oldDir < 0) {
+        console.log("old dir is less than 0");
+      }
       // console.log(point);
 
       // this is a case where it could be a seongle point connectiong shapes or something that isn't handled correctly with this - think that it works well enough
@@ -424,7 +444,7 @@ const outliner = (arr, length) => {
 
       let [firstPoint, secondPoint] = getSplitPoints(point, (dir + 4) % 8);
       ordering[oldIdx] = reversePoint(firstPoint);
-      directions[oldIdx] = -1;
+      directions[oldIdx] = -12;
       return secondPoint;
       // return second half of split with new direction
     };
@@ -482,6 +502,9 @@ const outliner = (arr, length) => {
       console.log("real point", realPoint, "new point", newPoint);
 
       directions.push(newDir);
+      if (newDir < 0) {
+        console.log("new dir less than -00000");
+      }
       ordering.push([realPoint[1], realPoint[0]]);
       if (newPoint[0] === startPoint[0] && newPoint[1] === startPoint[1]) {
         break;
