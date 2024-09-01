@@ -127,7 +127,7 @@ const processFullBinary = async (filePath) => {
 };
 
 const processCrosses = async () => {
-  let pixelArrs = await processFullBinary("./data/curr.bin");
+  let pixelArrs = await processFullBinary("./data/largeTest.bin");
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
   const orderings = pixelArrs.map((pixelArr, idx) => {
