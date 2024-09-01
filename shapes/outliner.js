@@ -200,13 +200,14 @@ const outliner = (arr, length) => {
       // it will also work on simple split tails
       // that is, split tails that aren't off of a tail, i.e. a double tail
       let [firstPoint, secondPoint] = getSplitPoints(splitPoint, direction);
+      console.log(direction, "dirrrrr");
 
       ordering.push(reversePoint(firstPoint));
       directions.push(-1);
       ordering.push(reversePoint(tailEndPoint));
       directions.push(-1);
       ordering.push(reversePoint(secondPoint));
-      directions.push(-1);
+      directions.push(direction * -1);
 
       // todo add directions
     };
@@ -234,10 +235,49 @@ const outliner = (arr, length) => {
         // say we came in at 2 so going digonally up
         // want to come in one from the point that we just came from, so 7
         // do it out it works
+        console.log("1");
+        // last point in ordering was a tail (second point)
+        if (direction < 0) {
+          console.log("Heerere", direction);
+          // need to reverse point this should work
+          let newDir = (direction + 4) % 8;
+          let interDirForSplit = (newDir + 3) % 8;
+          let simpledDir = interDirForSplit % 4;
+          console.log(
+            "past",
+            tailEndPoint,
+            point,
+            ordering[ordering.length - 2],
+            ordering[ordering.length - 3]
+          );
+          let newPoints = tailDirections[simpledDir](point);
+          console.log(newPoints, "newwwww", interDirForSplit);
+          let newPoint;
+          if (interDirForSplit >= 4) {
+            newPoint = newPoints[0];
+          } else {
+            newPoint = newPoints[1];
+          }
+
+          // now have the real point as newPoint
+          let [herePossTailEscPoint, herePossTailEscDir] = findNextPoint(
+            newPoint,
+            (tailEndDirection + 4) % 8
+          );
+
+          // shouldn't cause any crossing if we just got to the next point
+          ordering.push(tailEndPoint);
+          directions.push(-1);
+          return [herePossTailEscPoint, herePossTailEscDir];
+        }
+
+        // getting caught here because last point was a tail, so point is weird
+        console.log(direction);
         let [possTailEscPoint, possTailEscDir] = findNextPoint(
           point,
           (tailEndDirection + 4) % 8
         );
+        console.log("2");
         if (tailEndDirection !== possTailEscDir) {
           // tail either changed direction or we found an escape
           // need to check that this tail escape isn't a point we've already been to along the tail
@@ -275,7 +315,7 @@ const outliner = (arr, length) => {
               reversePoint(middleEnd),
               reversePoint(endTailEnd)
             );
-            directions.push(-1, -1, -1, -1, -1);
+            directions.push(-1, -1, -1, -1, ((possTailEscDir + 4) % 8) * -1);
 
             // then find a new esc point that works - todo this just gets the next one
             let [newTailEscPoint, newTailEscDir] = findNextPoint(
@@ -296,7 +336,7 @@ const outliner = (arr, length) => {
 
             createTail(point, tailEndPoint, tailEndDirection);
             // todo make this pop all
-
+            console.log(possTailEscPoint, "tail esc");
             return [possTailEscPoint, possTailEscDir];
           }
         } else {
@@ -391,11 +431,13 @@ const outliner = (arr, length) => {
 
     const findNextPoint = (lastPoint, direction) => {
       // want to check adjs in order (clockwise) starting at direction (what direction the last point was found at)
+      console.log("find next point last", lastPoint, direction);
       for (let i = direction; i <= direction + 6; i++) {
         let dir = i % 8;
         // point we want
         let dirPoint = adjs[dir](lastPoint);
-
+        // console.log(dirPoint);
+        // console.log(lastPoint);
         // found next point Theorem 1.2
         if (arr[dirPoint[0]][dirPoint[1]] === 1) {
           // our new direction is the direction we came from then up one
@@ -405,6 +447,7 @@ const outliner = (arr, length) => {
           return [dirPoint, newDir];
         }
       }
+      console.log("handling tail");
       // found point with no adjs to black squares other than the one we came from
       return handleTail();
       // return false;
@@ -436,6 +479,7 @@ const outliner = (arr, length) => {
           return true;
         }
       });
+      console.log("real point", realPoint, "new point", newPoint);
 
       directions.push(newDir);
       ordering.push([realPoint[1], realPoint[0]]);
