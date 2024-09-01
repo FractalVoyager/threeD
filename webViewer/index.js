@@ -67,11 +67,11 @@ const drawTrinagles = (tris) => {
 
   const drawTrinagle = (tri) => {
     ctx.beginPath();
-    ctx.moveTo(tri[0][0] * 2, tri[0][1] * 2);
+    ctx.moveTo(tri[0][0] * 4, tri[0][1] * 4);
     // line from first to second
-    ctx.lineTo(tri[1][0] * 2, tri[1][1] * 2);
+    ctx.lineTo(tri[1][0] * 4, tri[1][1] * 4);
     // line from first to third
-    ctx.lineTo(tri[2][0] * 2, tri[2][1] * 2);
+    ctx.lineTo(tri[2][0] * 4, tri[2][1] * 4);
     // line from third to first
     ctx.closePath();
     ctx.stroke();

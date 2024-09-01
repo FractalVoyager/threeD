@@ -63,13 +63,13 @@ const makeTriangles = async (filePath, z) => {
   console.log(
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
   );
-  // writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
+  writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
   // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
   writeFile(
-    arrayOfPointsToJSON(oldTrinagles, "outline"),
-    "./webViewer/outline.js"
+    arrayOfPointsToJSON(oldTrinagles, "triangles"),
+    "./webViewer/tris.js"
   );
 
   // const triangles = earClip(ordering);
@@ -82,10 +82,10 @@ const makeTriangles = async (filePath, z) => {
   //   "correct number of tris? " +
   //     (ordering.length - triangles.length === 2 ? true : false)
   // );
-  writeFile(
-    arrayOfPointsToJSON(oldTrinagles, "triangles"),
-    "./webViewer/tris.js"
-  );
+  // writeFile(
+  //   arrayOfPointsToJSON(oldTrinagles, "triangles"),
+  //   "./webViewer/tris.js"
+  // );
   const threeDtris = oldTrinagles.map((tri) => {
     return tri.map((point) => {
       return [point[0], point[1], z];
@@ -98,30 +98,41 @@ const makeTriangles = async (filePath, z) => {
   return { points: ordering, tris: threeDtris };
 };
 
+const processFullBinary = async (filePath) => {
+  const bin = await readBinaryFile(filePath);
+  const length = (bin[bin.length - 2] << 8) | bin[bin.length - 1];
+  console.log(length);
+};
+
 const processCrosses = async () => {
+  let crosses = processFullBinary("./data/fullSet0.bin");
   // const crosses = ["firstSet", "secondSet"].map((name) => {
   //   return await makeTriangles("./data/" + name + ".bin");
   // });
-  let topFour = await makeTriangles("./data/fourthSet.bin", 30);
-  let bottom = await makeTriangles("./data/secondSet.bin", 0);
-  let top = await makeTriangles("./data/firstSet.bin", 10);
-  let toptop = await makeTriangles("./data/thirdSet.bin", 20);
-  let tris = createSides(bottom.points, top.points, 0, 10);
-  let tristris = createSides(top.points, toptop.points, 10, 10);
-  let topTris = createSides(toptop.points, topFour.points, 20, 10);
-  console.log("tri repeats? " + hasRepeatingElements(tris));
-  console.log("tri repeats? " + hasRepeatingElements(tristris));
+  // let topFour = await makeTriangles("./data/fourthSet.bin", 0);
+  // let toptop = await makeTriangles("./data/thirdSet.bin", 10);
+  // let tris = createSides(topFour.points, toptop.points, 0, 10);
 
-  const stlStr = makeStlFromTrisList([
-    // tris,
-    // bottom.tris,
-    // top.tris,
-    // tristris,
-    toptop.tris,
-    topFour.tris,
-    topTris,
-  ]);
-  writeFile(stlStr, "./data/stl.stl");
+  // let topFour = await makeTriangles("./data/fourthSet.bin", 30);
+  // let bottom = await makeTriangles("./data/secondSet.bin", 0);
+  // let top = await makeTriangles("./data/firstSet.bin", 10);
+  // let toptop = await makeTriangles("./data/thirdSet.bin", 20);
+  // let tris = createSides(bottom.points, top.points, 0, 10);
+  // let tristris = createSides(top.points, toptop.points, 10, 10);
+  // let topTris = createSides(toptop.points, topFour.points, 20, 10);
+  // console.log("tri repeats? " + hasRepeatingElements(tris));
+  // console.log("tri repeats? " + hasRepeatingElements(tristris));
+
+  // const stlStr = makeStlFromTrisList([
+  //   // tris,
+  //   // bottom.tris,
+  //   // top.tris,
+  //   // tristris,
+  //   topFour.tris,
+  //   toptop.tris,
+  //   tris,
+  // ]);
+  // writeFile(stlStr, "./data/stl.stl");
 };
 
 processCrosses();
