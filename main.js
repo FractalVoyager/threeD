@@ -133,9 +133,8 @@ const processFullBinary = async (filePath) => {
 const processCrosses = async () => {
   let pixelArrs = await processFullBinary("./data/curr.bin");
 
-  let problem = await makeTriangles(pixelArrs[23], 0);
-  // let topFour = await makeTriangles(pixelArrs[0], 0);
-  return;
+  // let problem = await makeTriangles(pixelArrs[23], 0);
+  // return;
 
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
