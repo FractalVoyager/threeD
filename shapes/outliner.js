@@ -364,10 +364,6 @@ const outliner = (arr, length) => {
     return ordering;
   };
 
-  // TODO delete
-  // dumb thing because the data is weird
-  arr[0][2] = 0;
-  arr[0][3] = 0;
   const startPoint = findStartPoint();
   // the point you just came from is on the left, so you're moving right
   // so the first point to check is upper left which is at idx 5
