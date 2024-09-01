@@ -4,7 +4,7 @@
 
 const { dir } = require("console");
 
-const getNextStartPoint = (x, y, len) => {
+const getNextStartPointStart = (x, y, len) => {
   if (x === len) {
     return [x, y + 1];
   } else {
@@ -226,7 +226,6 @@ const outliner = (arr, length) => {
       // back to array way
       let tailEndPoint = reversePoint(ordering.pop());
       console.log("tail end", tailEndPoint, tailEndDirection);
-
       for (let i = 1; i < ordering.length; i++) {
         let point = reversePoint(ordering[ordering.length - i]);
         let direction = directions[directions.length - i];
@@ -306,6 +305,20 @@ const outliner = (arr, length) => {
         }
       }
 
+      if (ordering.length === 1) {
+        console.log("third found point is tail end");
+        let point = reversePoint(ordering.pop());
+        let [possTailEscPoint, possTailEscDir] = findNextPoint(
+          point,
+          (tailEndDirection + 4) % 8
+        );
+        directions.pop();
+        createTail(point, tailEndPoint, tailEndDirection);
+        console.log(possTailEscPoint);
+        console.log(ordering);
+        return [possTailEscPoint, possTailEscDir];
+      }
+
       // don't think I need this if properly handling skipping shapes
       // if (ordering.length === 0) {
       //   console.log("special start on middle of tail with none in ordering");
@@ -320,6 +333,20 @@ const outliner = (arr, length) => {
       //   return [possTailEscPoint, possTailEscDir];
       //   // console.log(possTailEscPoint);
       // } else {
+
+      // or this
+      // else if (ordering.length === 1) {
+      //   // second or start point could be escape
+      //   console.log("special start on middle of tail with 1 in ordering");
+      //   let [possTailEscPoint, possTailEscDir] = findNextPoint(
+      //     ordering[0],
+      //     (tailEndDirection + 4) % 8
+      //   );
+      //   console.log(possTailEscPoint, possTailEscDir);
+      //   let point = ordering.pop();
+      //   directions.pop();
+      //   createTail(point, tailEndPoint, tailEndDirection);
+      //   return [possTailEscPoint, possTailEscDir];
       console.log("no tail esc found");
       return false;
       // }
@@ -376,6 +403,7 @@ const outliner = (arr, length) => {
     ordering.push([newPoint[1], newPoint[0]]);
     directions.push(newDir);
     while (true) {
+      // console.log(newPoint);
       [newPoint, newDir] = findNextPoint(newPoint, newDir);
       let realPoint = newPoint;
       // check if it has already been in the ordering
@@ -408,6 +436,7 @@ const outliner = (arr, length) => {
   // also in clockwise order
 
   /// START ////
+  console.log(arr[381][542]);
   let ordering = false;
   let startPoint;
   let startX = 0;
@@ -422,7 +451,7 @@ const outliner = (arr, length) => {
     if (ordering === false) {
       // get new starts based on old
       // startPoint is y,x
-      [startX, startY] = getNextStartPoint(
+      [startX, startY] = getNextStartPointStart(
         startPoint[1],
         startPoint[0],
         length
@@ -443,9 +472,15 @@ const outliner = (arr, length) => {
           }
           return acc;
         }, 0);
-        console.log(ordering);
-        console.log("largest x,y", largestX, largestY);
-        // ordering = false;
+        // console.log(ordering);
+        // todo - could run into problems with last numbers not being integers
+        if (!Number.isInteger(largestX) || !Number.isInteger(largestY)) {
+          console.error("starts aren't integers ");
+          exit();
+        }
+        [startX, startY] = getNextStartPointStart(largestX, largestY, length);
+        // console.log("largest x,y", largestX, largestY);
+        ordering = false;
       }
     }
   }
