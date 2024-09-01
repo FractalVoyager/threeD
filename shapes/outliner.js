@@ -244,6 +244,10 @@ const outliner = (arr, length) => {
         // last point in ordering was a tail (second point)
         if (direction < 0) {
           console.log("Heerere", direction);
+          if (direction < -10) {
+            console.error("weird spot");
+            exit();
+          }
           // need to reverse point this should work
           let newDir;
           if (direction === -10) {
@@ -283,7 +287,19 @@ const outliner = (arr, length) => {
         }
 
         // getting caught here because last point was a tail, so point is weird
-        console.log(direction);
+        console.log("direction", direction);
+        console.log("point", point);
+        console.log(
+          "prev",
+          tailEndPoint,
+          point,
+          ordering[ordering.length - 2],
+          ordering[ordering.length - 3],
+          ordering[ordering.length - 4],
+          ordering[ordering.length - 5],
+          ordering[ordering.length - 6],
+          ordering[ordering.length - 7]
+        );
         let [possTailEscPoint, possTailEscDir] = findNextPoint(
           point,
           (tailEndDirection + 4) % 8
@@ -445,7 +461,7 @@ const outliner = (arr, length) => {
       let [firstPoint, secondPoint] = getSplitPoints(point, (dir + 4) % 8);
       ordering[oldIdx] = reversePoint(firstPoint);
       directions[oldIdx] = -12;
-      return secondPoint;
+      return [secondPoint, -40];
       // return second half of split with new direction
     };
 
@@ -490,10 +506,11 @@ const outliner = (arr, length) => {
         return false;
       }
       let realPoint = newPoint;
+      let realDir = newDir;
       // check if it has already been in the ordering
       ordering.every((point, idx) => {
         if (point[0] === newPoint[1] && point[1] === newPoint[0]) {
-          realPoint = handleRepeatedPoint(newPoint, newDir, idx);
+          [realPoint, realDir] = handleRepeatedPoint(newPoint, newDir, idx);
           return false;
         } else {
           return true;
@@ -501,7 +518,7 @@ const outliner = (arr, length) => {
       });
       console.log("real point", realPoint, "new point", newPoint);
 
-      directions.push(newDir);
+      directions.push(realDir);
       if (newDir < 0) {
         console.log("new dir less than -00000");
       }
