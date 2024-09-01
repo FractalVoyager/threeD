@@ -100,12 +100,66 @@ const makeTriangles = async (filePath, z) => {
 
 const processFullBinary = async (filePath) => {
   const bin = await readBinaryFile(filePath);
-  const length = (bin[bin.length - 2] << 8) | bin[bin.length - 1];
-  console.log(length);
+  const width = (bin[bin.length - 2] << 8) | bin[bin.length - 1];
+  const arrLen = width * width;
+  const numSets = ((bin.length - 2) / arrLen) * 8;
+  // console.log(numSets);
+
+  const setByteLength = Math.ceil(arrLen / 8);
+  // Extract each pixel array from the binary data
+  let offset = 0;
+  let pixelArrs = [];
+  for (let i = 0; i < numSets; i++) {
+    // Calculate the length of bytes for the current set
+
+    // Extract the byte array for the current set
+    let byteArray = bin.slice(offset, offset + setByteLength);
+
+    // Convert the byte array to a bit array (pixel array)
+    let pixelArray = convertByteArrayToPixelArray(byteArray);
+    pixelArrs.push(pixelArray);
+    // Print or process the pixel array as needed
+
+    // Update the offset for the next set
+    offset += setByteLength;
+  }
+  return pixelArrs;
 };
 
 const processCrosses = async () => {
-  let crosses = processFullBinary("./data/fullSet0.bin");
+  let pixelArrs = await processFullBinary("./data/currFullSet.bin");
+  const width = Math.sqrt(pixelArrs[0].length);
+  const step = Math.floor(width / pixelArrs.length);
+  const orderings = pixelArrs.map((pixelArr, idx) => {
+    // make 2 d arr
+    let twoDPixelArr = pixelArrTo2dPixelArr(pixelArr);
+    // return ordering ordering
+    return outliner(twoDPixelArr, width);
+  });
+
+  let allTris = [];
+
+  for (let i = 0; i < orderings.length - 1; i++) {
+    let bottom = orderings[i];
+    let top = orderings[i + 1];
+    let sides = createSides(bottom, top, step * i, step);
+    allTris.push(sides);
+    let tris;
+    if (i === 0 || i === orderings.length - 2) {
+      tris = unOptimizedEarClip(i === 0 ? bottom : top);
+      let z = i === 0 ? 0 : step * (i + 1);
+      tris = tris.map((tri) => {
+        return tri.map((point) => {
+          return [point[0], point[1], z];
+        });
+      });
+      allTris.push(tris);
+    }
+
+    const stlStr = makeStlFromTrisList(allTris);
+    writeFile(stlStr, "./data/stl.stl");
+  }
+
   // const crosses = ["firstSet", "secondSet"].map((name) => {
   //   return await makeTriangles("./data/" + name + ".bin");
   // });
