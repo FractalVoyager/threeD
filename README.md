@@ -5,10 +5,8 @@
 Outline: (o)
 
 - o3: make it work for tails that circle back to the shape (holes - write hole detection fcn)
-- o4: make it work for multiple shapes and single points (think we just want to get rid of these, keep the biggest shape)
 - o5: get many more samples and handle all weird parts that haven't been addressed (final check)
 - o6: make it so 2-turn tails in clockwise are recongized as 1-turn tails in counter clockwise if that is the case. See pics from 8/9/24 - should be handled with handling repeated points in o7
-- o9: fix the handle duplicate points for complex cases
 
 Triangulate 2d shape: (t)
 
@@ -26,8 +24,13 @@ FV stuff: (f)
 
 ## DOING:
 
+- o9: fix the handle duplicate points for complex cases
+
 ## DONE:
 
+(broken up by prs)
+
+- o4: make it work for multiple shapes and single points (think we just want to get rid of these, keep the biggest shape)
 - o8: make it work for if the first point is
 
   - a tail

@@ -20,6 +20,23 @@ const isColinear = (a, b, c) => {
   return false; // clockwise or counterclockwise --- want clockwise - 1
 };
 
+const handleAllDuplicates = (ordering) => {
+  let newPoints = [];
+  for (let i = 0; i < ordering.length; i++) {
+    let duplicateIdxs = [];
+    let point = ordering[i];
+    ordering.forEach((p, idx) => {
+      if (p[0] === point[0] && p[1] === point[1]) {
+        duplicateIdxs.push(idx);
+      }
+    });
+    if (duplicateIdxs.length === 1) {
+      newPoints.push(point);
+    }
+  }
+  return newPoints;
+};
+
 const handlePointsAlongLine = (ordering) => {
   // todo handle first point - use mods
   let newPoints = [];
@@ -445,6 +462,8 @@ const outliner = (arr, length) => {
     };
 
     const handleRepeatedPoint = (point, dir, oldIdx) => {
+      console.log("handling repeat, this is where it is going wrong");
+      // return [point, dir];
       // we want to split this point
       let oldDir = directions[oldIdx];
       if (oldDir < 0) {
