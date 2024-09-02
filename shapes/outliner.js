@@ -459,9 +459,16 @@ const outliner = (arr, length) => {
       }
 
       let [firstPoint, secondPoint] = getSplitPoints(point, (dir + 4) % 8);
+
+      let interDir = (dir + 4) % 8;
+      if (interDir === 0) {
+        interDir = -10;
+      } else {
+        interDir = interDir * -1;
+      }
       ordering[oldIdx] = reversePoint(firstPoint);
       directions[oldIdx] = -12;
-      return [secondPoint, -40];
+      return [secondPoint, interDir];
       // return second half of split with new direction
     };
 
