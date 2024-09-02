@@ -19,6 +19,7 @@ const drawFromPoints = (points) => {
 };
 
 const drawLinesFromPoints = (points) => {
+  console.log("here");
   const canvas = document.getElementById("outline-lines-can");
   const ctx = canvas.getContext("2d");
 
@@ -83,6 +84,7 @@ const drawTrinagles = (tris) => {
 };
 
 drawFrom2dArr(orig);
-drawFromPoints(outline);
 drawLinesFromPoints(outline);
+
+drawFromPoints(outline);
 drawTrinagles(triangles);
