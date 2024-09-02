@@ -281,7 +281,7 @@ const outliner = (arr, length) => {
           );
 
           // shouldn't cause any crossing if we just got to the next point
-          ordering.push(tailEndPoint);
+          ordering.push(reversePoint(tailEndPoint));
           directions.push(-20);
           return [herePossTailEscPoint, herePossTailEscDir];
         }
