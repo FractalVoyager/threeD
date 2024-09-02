@@ -569,6 +569,9 @@ const outliner = (arr, length) => {
   let startPoint;
   let startX = 0;
   let startY = 0;
+
+  arr[0][2] = 0;
+  arr[0][3] = 0;
   // points to start looking for next one
   while (ordering === false) {
     startPoint = findStartPoint(startY, startX);

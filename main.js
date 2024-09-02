@@ -68,7 +68,7 @@ const makeTriangles = async (pixelArray, z) => {
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
   );
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
-  return;
+  // return;
   // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
@@ -132,10 +132,14 @@ const processFullBinary = async (filePath) => {
 };
 
 const processCrosses = async () => {
-  let pixelArrs = await processFullBinary("./data/curr.bin");
+  let pixelArrs = await processFullBinary("./data/toughbigone.bin");
 
-  let problem = await makeTriangles(pixelArrs[0], 0);
+  const data = await readBinaryFile("./data/hardTails.bin");
+  const pixelArray = convertByteArrayToPixelArray(data);
+  let problem = await makeTriangles(pixelArray, 0);
   return;
+  // let problem = await makeTriangles(pixelArrs[0], 0);
+  // return;
 
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
