@@ -134,10 +134,10 @@ const processFullBinary = async (filePath) => {
 const processCrosses = async () => {
   let pixelArrs = await processFullBinary("./data/toughbigone.bin");
 
-  const data = await readBinaryFile("./data/hardTails.bin");
-  const pixelArray = convertByteArrayToPixelArray(data);
-  let problem = await makeTriangles(pixelArray, 0);
-  return;
+  // const data = await readBinaryFile("./data/hardTails.bin");
+  // const pixelArray = convertByteArrayToPixelArray(data);
+  // let problem = await makeTriangles(pixelArray, 0);
+  // return;
   // let problem = await makeTriangles(pixelArrs[0], 0);
   // return;
 
