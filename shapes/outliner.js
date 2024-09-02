@@ -4,6 +4,14 @@
 
 const { dir } = require("console");
 
+const getNextStartPointStart = (x, y, len) => {
+  if (x === len) {
+    return [x, y + 1];
+  } else {
+    return [x + 1, y];
+  }
+};
+
 const isColinear = (a, b, c) => {
   const val = (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1]);
   if (val === 0) {
@@ -26,7 +34,7 @@ const handlePointsAlongLine = (ordering) => {
           (ordering[i + 1][1] - ordering[i][1]);
       // B.x - A.x * C.x - B.x, +B.y - A.y * C.y - B.y;
       if (dotProd < 0) {
-        console.log("real one");
+        // console.log("real one");
       } else {
         newPoints.push(ordering[i - 1]);
       }
@@ -49,9 +57,12 @@ const outliner = (arr, length) => {
 
   // need to find a good start point on the edge
   // Theorem 1.1
-  const findStartPoint = () => {
-    for (let row = 0; row < length; row++) {
-      for (let col = 0; col < length; col++) {
+  const findStartPoint = (startY, startX) => {
+    for (let row = startY; row < length; row++) {
+      if (row > startY) {
+        startX = 0;
+      }
+      for (let col = startX; col < length; col++) {
         // found black point
         if (arr[row][col] === 1) {
           return [row, col];
@@ -189,13 +200,19 @@ const outliner = (arr, length) => {
       // it will also work on simple split tails
       // that is, split tails that aren't off of a tail, i.e. a double tail
       let [firstPoint, secondPoint] = getSplitPoints(splitPoint, direction);
-
+      // console.log(direction, "dirrrrr");
+      let interDir = direction;
+      if (interDir === 0) {
+        interDir = -10;
+      } else {
+        interDir = interDir * -1;
+      }
       ordering.push(reversePoint(firstPoint));
-      directions.push(-1);
+      directions.push(-30);
       ordering.push(reversePoint(tailEndPoint));
-      directions.push(-1);
+      directions.push(-40);
       ordering.push(reversePoint(secondPoint));
-      directions.push(-1);
+      directions.push(interDir);
 
       // todo add directions
     };
@@ -205,39 +222,104 @@ const outliner = (arr, length) => {
       // need to store the previous directions so we can pop off
       // TODO - handle the tails that change direction later
 
+      // first point has no adjs
+      if (directions.length === 0) {
+        return [false, false];
+      }
+
       // point we were just at is the end of the tail
       let tailEndDirection = directions.pop();
       // back to array way
       let tailEndPoint = reversePoint(ordering.pop());
-      console.log("tail end", tailEndPoint, tailEndDirection);
-
+      // console.log("tail end", tailEndPoint, tailEndDirection);
       for (let i = 1; i < ordering.length; i++) {
         let point = reversePoint(ordering[ordering.length - i]);
         let direction = directions[directions.length - i];
-        console.log("point", point, direction);
+        // console.log("point", point, direction);
         // reason for +4
         // say we came in at 2 so going digonally up
         // want to come in one from the point that we just came from, so 7
         // do it out it works
+        // console.log("1");
+        // last point in ordering was a tail (second point)
+        if (direction < 0) {
+          // console.log("Heerere", direction);
+          if (direction < -10) {
+            console.error("weird spot");
+            exit();
+          }
+          // need to reverse point this should work
+          let newDir;
+          if (direction === -10) {
+            newDir = 0;
+          } else {
+            newDir = direction * -1;
+          }
+          newDir = (newDir + 4) % 8;
+          let interDirForSplit = (newDir + 3) % 8;
+          let simpledDir = interDirForSplit % 4;
+          // console.log(
+          //   "past",
+          //   tailEndPoint,
+          //   point,
+          //   ordering[ordering.length - 2],
+          //   ordering[ordering.length - 3]
+          // );
+          let newPoints = tailDirections[simpledDir](point);
+          // console.log(newPoints, "newwwww", interDirForSplit);
+          let newPoint;
+          if (interDirForSplit >= 4) {
+            newPoint = newPoints[0];
+          } else {
+            newPoint = newPoints[1];
+          }
+
+          // now have the real point as newPoint
+          let [herePossTailEscPoint, herePossTailEscDir] = findNextPoint(
+            newPoint,
+            (tailEndDirection + 4) % 8
+          );
+
+          // shouldn't cause any crossing if we just got to the next point
+          ordering.push(reversePoint(tailEndPoint));
+          directions.push(-20);
+          return [herePossTailEscPoint, herePossTailEscDir];
+        }
+
+        // getting caught here because last point was a tail, so point is weird
+        // console.log("direction", direction);
+        // console.log("point", point);
+        // console.log(
+        //   "prev",
+        //   tailEndPoint,
+        //   point,
+        //   ordering[ordering.length - 2],
+        //   ordering[ordering.length - 3],
+        //   ordering[ordering.length - 4],
+        //   ordering[ordering.length - 5],
+        //   ordering[ordering.length - 6],
+        //   ordering[ordering.length - 7]
+        // );
         let [possTailEscPoint, possTailEscDir] = findNextPoint(
           point,
           (tailEndDirection + 4) % 8
         );
+        // console.log("2");
         if (tailEndDirection !== possTailEscDir) {
           // tail either changed direction or we found an escape
           // need to check that this tail escape isn't a point we've already been to along the tail
           // it needs to not be in the same direction as the tails
           // additonal checks here for tail direction chaning TODO
-          console.log("tail esc", possTailEscPoint, possTailEscDir);
-          console.log(
-            "prev point",
-            reversePoint(ordering[ordering.length - i - 1])
-          );
+          // console.log("tail esc", possTailEscPoint, possTailEscDir);
+          // console.log(
+          //   "prev point",
+          //   reversePoint(ordering[ordering.length - i - 1])
+          // );
           if (
             JSON.stringify(possTailEscPoint) ===
             JSON.stringify(reversePoint(ordering[ordering.length - i - 1]))
           ) {
-            console.log("point already in ordering");
+            // console.log("point already in ordering");
             // todo this prob wont work for longer tails that change direction
             // need to create tail with point and tail endpoint, also need to split this wrong escape point
             // split wrong escape point
@@ -260,7 +342,13 @@ const outliner = (arr, length) => {
               reversePoint(middleEnd),
               reversePoint(endTailEnd)
             );
-            directions.push(-1, -1, -1, -1, -1);
+            let interDir = (possTailEscDir + 4) % 8;
+            if (interDir === 0) {
+              interDir = -10;
+            } else {
+              interDir = interDir * -1;
+            }
+            directions.push(-12, -13, -14, -15, interDir);
 
             // then find a new esc point that works - todo this just gets the next one
             let [newTailEscPoint, newTailEscDir] = findNextPoint(
@@ -281,21 +369,88 @@ const outliner = (arr, length) => {
 
             createTail(point, tailEndPoint, tailEndDirection);
             // todo make this pop all
-
+            // console.log(possTailEscPoint, "tail esc");
             return [possTailEscPoint, possTailEscDir];
           }
         } else {
           // here we just split mid tail points
           console.log("OOPS");
+          exit();
         }
       }
+
+      if (ordering.length === 0) {
+        // console.log("first found point is tail end");
+        let [possTailEscPoint, possTailEscDir] = findNextPoint(
+          startPoint,
+          (tailEndDirection + 4) % 8
+        );
+        if (!possTailEscPoint) {
+          // this means we picked a 2 by shape
+          return [false, false];
+        }
+
+        // not sure this will work, might not ever find start or something weird
+        createTail(startPoint, tailEndPoint, tailEndDirection);
+        return [possTailEscPoint, possTailEscDir];
+      }
+
+      if (ordering.length === 1) {
+        // console.log("second found point is tail end");
+        let point = reversePoint(ordering.pop());
+        let [possTailEscPoint, possTailEscDir] = findNextPoint(
+          point,
+          (tailEndDirection + 4) % 8
+        );
+        directions.pop();
+        createTail(point, tailEndPoint, tailEndDirection);
+        // console.log(possTailEscPoint);
+        // console.log(ordering);
+        return [possTailEscPoint, possTailEscDir];
+      }
+
+      // don't think I need this if properly handling skipping shapes
+      // if (ordering.length === 0) {
+      //   console.log("special start on middle of tail with none in ordering");
+      //   // console.log(startPoint);
+      //   // think this covers everything? But really not super sure, even though it looks liek it doensn't think aobut it it should, other longer tials should be covered with normal thing
+      //   let [possTailEscPoint, possTailEscDir] = findNextPoint(
+      //     startPoint,
+      //     (tailEndDirection + 4) % 8
+      //   );
+      //   console.log("tail esc", possTailEscPoint, possTailEscDir);
+      //   createTail(startPoint, tailEndPoint, tailEndDirection);
+      //   return [possTailEscPoint, possTailEscDir];
+      //   // console.log(possTailEscPoint);
+      // } else {
+
+      // or this
+      // else if (ordering.length === 1) {
+      //   // second or start point could be escape
+      //   console.log("special start on middle of tail with 1 in ordering");
+      //   let [possTailEscPoint, possTailEscDir] = findNextPoint(
+      //     ordering[0],
+      //     (tailEndDirection + 4) % 8
+      //   );
+      //   console.log(possTailEscPoint, possTailEscDir);
+      //   let point = ordering.pop();
+      //   directions.pop();
+      //   createTail(point, tailEndPoint, tailEndDirection);
+      //   return [possTailEscPoint, possTailEscDir];
       console.log("no tail esc found");
+      console.error("no tail escape foud");
+      exit();
       return false;
+      // }
     };
 
     const handleRepeatedPoint = (point, dir, oldIdx) => {
       // we want to split this point
       let oldDir = directions[oldIdx];
+      if (oldDir < 0) {
+        console.log("old dir is less than 0");
+        exit();
+      }
       // console.log(point);
 
       // this is a case where it could be a seongle point connectiong shapes or something that isn't handled correctly with this - think that it works well enough
@@ -305,20 +460,43 @@ const outliner = (arr, length) => {
         // console.log("not weird split point");
       }
 
-      let [firstPoint, secondPoint] = getSplitPoints(point, (dir + 4) % 8);
+      if (dir < 0) {
+        console.error("adsfads");
+        exit();
+      }
+
+      // old ==== realDir = (dir + 4) % 8;
+      let realDir = (dir + 4) % 8;
+      // if (dir < 4) {
+      //   realDir = oldDir;
+      // } else {
+      //   realDir = (dir + 4) % 8;
+      // }
+
+      // TODO - need a better way of doing this for points that get hit 3 times asnd even 2
+      let [firstPoint, secondPoint] = getSplitPoints(point, realDir);
+
+      let interDir = realDir;
+      if (interDir === 0) {
+        interDir = -10;
+      } else {
+        interDir = interDir * -1;
+      }
       ordering[oldIdx] = reversePoint(firstPoint);
-      directions[oldIdx] = -1;
-      return secondPoint;
+      directions[oldIdx] = -12;
+      return [secondPoint, interDir];
       // return second half of split with new direction
     };
 
     const findNextPoint = (lastPoint, direction) => {
       // want to check adjs in order (clockwise) starting at direction (what direction the last point was found at)
+      // console.log("find next point last", lastPoint, direction);
       for (let i = direction; i <= direction + 6; i++) {
         let dir = i % 8;
         // point we want
         let dirPoint = adjs[dir](lastPoint);
-
+        // console.log(dirPoint);
+        // console.log(lastPoint);
         // found next point Theorem 1.2
         if (arr[dirPoint[0]][dirPoint[1]] === 1) {
           // our new direction is the direction we came from then up one
@@ -328,29 +506,45 @@ const outliner = (arr, length) => {
           return [dirPoint, newDir];
         }
       }
+      // console.log("handling tail");
       // found point with no adjs to black squares other than the one we came from
       return handleTail();
       // return false;
     };
+    let ordering = [];
+    let directions = [];
     // could also only have one call to this if I assing start to new
     let [newPoint, newDir] = findNextPoint(startPoint, direction);
+    if (!newPoint) {
+      // start point was stranded, find a new one
+      return false;
+    }
     // need to swap order to switch form array of rows to x,y canvas corod
-    let ordering = [[newPoint[1], newPoint[0]]];
-    let directions = [newDir];
+    ordering.push([newPoint[1], newPoint[0]]);
+    directions.push(newDir);
     while (true) {
+      // console.log(newPoint);
       [newPoint, newDir] = findNextPoint(newPoint, newDir);
+      if (newPoint === false) {
+        return false;
+      }
       let realPoint = newPoint;
+      let realDir = newDir;
       // check if it has already been in the ordering
       ordering.every((point, idx) => {
         if (point[0] === newPoint[1] && point[1] === newPoint[0]) {
-          realPoint = handleRepeatedPoint(newPoint, newDir, idx);
+          [realPoint, realDir] = handleRepeatedPoint(newPoint, newDir, idx);
           return false;
         } else {
           return true;
         }
       });
+      // console.log("real point", realPoint, "new point", newPoint);
 
-      directions.push(newDir);
+      directions.push(realDir);
+      if (newDir < 0) {
+        // console.log("new dir less than -00000");
+      }
       ordering.push([realPoint[1], realPoint[0]]);
       if (newPoint[0] === startPoint[0] && newPoint[1] === startPoint[1]) {
         break;
@@ -364,36 +558,64 @@ const outliner = (arr, length) => {
     return ordering;
   };
 
-  const startPoint = findStartPoint();
   // the point you just came from is on the left, so you're moving right
   // so the first point to check is upper left which is at idx 5
   // these points in y,x
   // also in clockwise order
-  const ordering = findPoints(startPoint, 5);
+
+  /// START ////
+  // console.log(arr[381][542]);
+  let ordering = false;
+  let startPoint;
+  let startX = 0;
+  let startY = 0;
+
+  arr[0][2] = 0;
+  arr[0][3] = 0;
+  // points to start looking for next one
+  while (ordering === false) {
+    startPoint = findStartPoint(startY, startX);
+    // console.log("start point", startPoint);
+    ordering = findPoints(startPoint, 5);
+
+    // start point had no adjs
+    if (ordering === false) {
+      // get new starts based on old
+      // startPoint is y,x
+      [startX, startY] = getNextStartPointStart(
+        startPoint[1],
+        startPoint[0],
+        length
+      );
+    } else {
+      // if the shape is small, prob not full shape
+      if (ordering.length < length / 2) {
+        let largestY = ordering.reduce((acc, point) => {
+          if (point[1] > acc) {
+            return point[1];
+          }
+          return acc;
+        }, 0);
+        let largestYs = ordering.filter((point) => point[1] === largestY);
+        let largestX = largestYs.reduce((acc, point) => {
+          if (point[0] > acc) {
+            return point[0];
+          }
+          return acc;
+        }, 0);
+        // console.log(ordering);
+        // todo - could run into problems with last numbers not being integers
+        if (!Number.isInteger(largestX) || !Number.isInteger(largestY)) {
+          console.error("starts aren't integers ");
+          exit();
+        }
+        [startX, startY] = getNextStartPointStart(largestX, largestY, length);
+        // console.log("largest x,y", largestX, largestY);
+        ordering = false;
+      }
+    }
+  }
   return ordering;
-
-  // console.log(findNextPoint(startPoint, 5));
-};
-
-// old
-// point is x,y corodinate
-// is black is true if looking for black adjs, false if white
-const findColorAdj = (point, isBlack) => {
-  // // goes through each point
-  // for (let x = -1; x <= 1; x++) {
-  //   for (let y = -1; y <= 1; y++) {
-  //     // self
-  //     if (x === 0 && y == 0) {
-  //       continue;
-  //     }
-  //     // adjacent white point
-  //     if (arr[point[0] + x][point[1] + y] === (isBlack ? 1 : 0)) {
-  //       true;
-  //     }
-  //   }
-  // }
-  // no correct adjs found
-  return false;
 };
 
 module.exports = { outliner };

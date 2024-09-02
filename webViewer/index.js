@@ -10,7 +10,7 @@ const drawFromPoints = (points) => {
     arr.forEach((point) => {
       const [x, y] = point;
       ctx.fillStyle = "black"; // Set the color for the point
-      ctx.fillRect(x * 2, y * 2, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
+      ctx.fillRect(x * 4, y * 4, 1, 1); // Draw a 1x1 pixel at the (x, y) coordinate
     });
   };
 
@@ -19,6 +19,7 @@ const drawFromPoints = (points) => {
 };
 
 const drawLinesFromPoints = (points) => {
+  console.log("here");
   const canvas = document.getElementById("outline-lines-can");
   const ctx = canvas.getContext("2d");
 
@@ -83,6 +84,7 @@ const drawTrinagles = (tris) => {
 };
 
 drawFrom2dArr(orig);
-drawFromPoints(outline);
 drawLinesFromPoints(outline);
+
+drawFromPoints(outline);
 drawTrinagles(triangles);

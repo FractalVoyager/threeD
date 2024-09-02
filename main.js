@@ -48,22 +48,27 @@ function hasRepeatingElements(arr) {
   return false;
 }
 
-const makeTriangles = async (filePath, z) => {
+const makeTriangles = async (pixelArray, z) => {
   // const filePath = "./data/firstSet.bin";
 
-  const data = await readBinaryFile(filePath);
-  const pixelArray = convertByteArrayToPixelArray(data);
+  // const data = await readBinaryFile(filePath);
+  // const pixelArray = convertByteArrayToPixelArray(data);
 
   // length of canvas
   let length = Math.sqrt(pixelArray.length);
+
   // const pointsArr = pixelArrayToPoints(pixelArray);
   const twoDPixelArr = pixelArrTo2dPixelArr(pixelArray);
+
   writeFile(arrayOfPointsToJSON(twoDPixelArr, "orig"), "./webViewer/orig.js");
+  // console.log(twoDPixelArr);
+  // return;
   const ordering = outliner(twoDPixelArr, length);
   console.log(
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
   );
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
+  // return;
   // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
@@ -127,10 +132,20 @@ const processFullBinary = async (filePath) => {
 };
 
 const processCrosses = async () => {
-  let pixelArrs = await processFullBinary("./data/curr.bin");
+  let pixelArrs = await processFullBinary("./data/toughbigone.bin");
+
+  // const data = await readBinaryFile("./data/hardTails.bin");
+  // const pixelArray = convertByteArrayToPixelArray(data);
+  // let problem = await makeTriangles(pixelArray, 0);
+  // return;
+  // let problem = await makeTriangles(pixelArrs[0], 0);
+  // return;
+
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
   const orderings = pixelArrs.map((pixelArr, idx) => {
+    console.log("2d layer: ", idx);
+
     // make 2 d arr
     let twoDPixelArr = pixelArrTo2dPixelArr(pixelArr);
     // return ordering ordering
@@ -140,6 +155,7 @@ const processCrosses = async () => {
   let allTris = [];
 
   for (let i = 0; i < orderings.length - 1; i++) {
+    console.log("3d layer: ", i);
     let bottom = orderings[i];
     let top = orderings[i + 1];
     let sides = createSides(bottom, top, step * i, step);
