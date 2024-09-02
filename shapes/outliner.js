@@ -380,7 +380,7 @@ const outliner = (arr, length) => {
       }
 
       if (ordering.length === 0) {
-        console.log("first found point is tail end");
+        // console.log("first found point is tail end");
         let [possTailEscPoint, possTailEscDir] = findNextPoint(
           startPoint,
           (tailEndDirection + 4) % 8
@@ -396,7 +396,7 @@ const outliner = (arr, length) => {
       }
 
       if (ordering.length === 1) {
-        console.log("second found point is tail end");
+        // console.log("second found point is tail end");
         let point = reversePoint(ordering.pop());
         let [possTailEscPoint, possTailEscDir] = findNextPoint(
           point,
@@ -404,8 +404,8 @@ const outliner = (arr, length) => {
         );
         directions.pop();
         createTail(point, tailEndPoint, tailEndDirection);
-        console.log(possTailEscPoint);
-        console.log(ordering);
+        // console.log(possTailEscPoint);
+        // console.log(ordering);
         return [possTailEscPoint, possTailEscDir];
       }
 
