@@ -69,7 +69,6 @@ const makeTriangles = async (pixelArray, z) => {
   );
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
   // return;
-  // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
   writeFile(
@@ -132,7 +131,7 @@ const processFullBinary = async (filePath) => {
 };
 
 const processCrosses = async () => {
-  let pixelArrs = await processFullBinary("./data/toughbigone.bin");
+  let pixelArrs = await processFullBinary("./data/curr.bin");
 
   // const data = await readBinaryFile("./data/hardTails.bin");
   // const pixelArray = convertByteArrayToPixelArray(data);
