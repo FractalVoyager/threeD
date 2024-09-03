@@ -15,7 +15,6 @@ Triangulate 2d shape: (t)
 
 3D Sides: (s)
 
-- s0: bug fix the initial top down sometimes not only doing points after
 - s2: throughly test to make sure it is all working as expected
 
 FV stuff: (f)
@@ -24,11 +23,14 @@ FV stuff: (f)
 
 ## DOING:
 
-- o9: fix the handle duplicate points for complex cases
+- s0: bug fix the initial top down sometimes not only doing points after
+  - basically just make the create 3d thing totally work
 
 ## DONE:
 
 (broken up by prs)
+
+- o9: fix the handle duplicate points for complex cases
 
 - o4: make it work for multiple shapes and single points (think we just want to get rid of these, keep the biggest shape)
 - o8: make it work for if the first point is
