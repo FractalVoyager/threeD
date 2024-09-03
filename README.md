@@ -1,3 +1,8 @@
+The idea for this branch is to simplify the outliner algorithm to go to the edges of the pixels defined in tail directions (first point only) for all pixels found instead of just tails.
+So there will be no points on the original pixels, just around the edges. This should avoid the need for splitting points, and tails. For tails, will need to add something (at least including going back to the pixel that is was just added as last in ordering to check for)
+
+Also possibliy use something like marching squares alg to process the 3d shape instead of weird graph thing.
+
 # Plan
 
 ## Backlog:
