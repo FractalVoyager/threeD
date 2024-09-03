@@ -505,10 +505,10 @@ const outliner = (arr, length) => {
 
       // NOTE NOTE: if needed, can keep list of already split points for double split
       // currently, this will just go to the middle
-      let firstPoint = getSplitPoints(point, (oldDir + 6) % 8)[0];
-      let secondPoint = getSplitPoints(point, (dir + 6) % 8)[0];
+      let firstPoint = getSplitPoints(point, (oldDir + 7) % 8)[0];
+      let secondPoint = getSplitPoints(point, (dir + 7) % 8)[0];
       splitPoints.push(point);
-      let interDir = (dir + 6 + 4) % 8;
+      let interDir = (dir + 7 + 4) % 8;
       if (interDir === 0) {
         interDir = -10;
       } else {
