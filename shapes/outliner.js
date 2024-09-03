@@ -262,6 +262,8 @@ const outliner = (arr, length) => {
         // do it out it works
         // console.log("1");
         // last point in ordering was a tail (second point)
+        console.log(direction);
+
         if (direction < 0) {
           // console.log("Heerere", direction);
           if (direction < -10) {
@@ -285,6 +287,12 @@ const outliner = (arr, length) => {
           //   ordering[ordering.length - 2],
           //   ordering[ordering.length - 3]
           // );
+          /// this is wrong now
+          // why is because this was reversing the split point to get the real point out of it
+          // to find the next point
+          // but now, the splitting points is calculated differently, so its getting a weird point (I think)
+          // what I could do is change how it is calced in split points (because tails are the same) to match this way
+          // thats what I did
           let newPoints = tailDirections[simpledDir](point);
           // console.log(newPoints, "newwwww", interDirForSplit);
           let newPoint;
@@ -293,6 +301,8 @@ const outliner = (arr, length) => {
           } else {
             newPoint = newPoints[1];
           }
+
+          console.log("newwww", newPoint);
 
           // now have the real point as newPoint
           let [herePossTailEscPoint, herePossTailEscDir] = findNextPoint(
@@ -498,7 +508,7 @@ const outliner = (arr, length) => {
       let firstPoint = getSplitPoints(point, (oldDir + 6) % 8)[0];
       let secondPoint = getSplitPoints(point, (dir + 6) % 8)[0];
       splitPoints.push(point);
-      let interDir = dir;
+      let interDir = (dir + 6 + 4) % 8;
       if (interDir === 0) {
         interDir = -10;
       } else {
