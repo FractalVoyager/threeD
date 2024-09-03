@@ -69,6 +69,7 @@ const handlePointsAlongLine = (ordering) => {
 
 // can easilly switch this back to 1d array if performance issues but for now this is easier to deal with
 const outliner = (arr, length) => {
+  let splitPoints = [];
   // goal: given an array of points, find a point ordering to outline that shape
   // this is so we can process this by triangulating
 
@@ -217,6 +218,7 @@ const outliner = (arr, length) => {
       // it will also work on simple split tails
       // that is, split tails that aren't off of a tail, i.e. a double tail
       let [firstPoint, secondPoint] = getSplitPoints(splitPoint, direction);
+      splitPoints.push(splitPoint);
       // console.log(direction, "dirrrrr");
       let interDir = direction;
       if (interDir === 0) {
@@ -235,6 +237,7 @@ const outliner = (arr, length) => {
     };
 
     const handleTail = () => {
+      console.log("tail");
       // here, we found a point that has no adjs other than the point it came from
       // need to store the previous directions so we can pop off
       // TODO - handle the tails that change direction later
@@ -344,10 +347,12 @@ const outliner = (arr, length) => {
               possTailEscPoint,
               (possTailEscDir + 4) % 8
             );
+            splitPoints.push(possTailEscPoint);
             let [middleStart, middleEnd] = getSplitPoints(
               point,
               tailEndDirection
             );
+            splitPoints.push(point);
             directions.pop();
             directions.pop();
             ordering.pop();
@@ -467,16 +472,20 @@ const outliner = (arr, length) => {
       // we want to split this point
       let oldDir = directions[oldIdx];
       if (oldDir < 0) {
+        splitPoints.forEach((p) => {
+          if (point[0] === p[0] && point[1] === p[1]) {
+            console.log("TUREEEEE");
+          }
+        });
+        console.log(oldDir);
+        console.log(point);
+        console.log(ordering[ordering.length - 1]);
+        console.log(ordering[ordering.length - 2]);
+        console.log(oldIdx, ordering.length);
+        console.log(ordering[ordering.length - 3]);
+
         console.log("old dir is less than 0");
         exit();
-      }
-      // console.log(point);
-
-      // this is a case where it could be a seongle point connectiong shapes or something that isn't handled correctly with this - think that it works well enough
-      if ((oldDir + 4) % 8 !== dir) {
-        // console.log("WEIRD SPLIT POINT");
-      } else {
-        // console.log("not weird split point");
       }
 
       if (dir < 0) {
@@ -484,18 +493,12 @@ const outliner = (arr, length) => {
         exit();
       }
 
-      // old ==== realDir = (dir + 4) % 8;
-      let realDir = (dir + 4) % 8;
-      // if (dir < 4) {
-      //   realDir = oldDir;
-      // } else {
-      //   realDir = (dir + 4) % 8;
-      // }
-
-      // TODO - need a better way of doing this for points that get hit 3 times asnd even 2
-      let [firstPoint, secondPoint] = getSplitPoints(point, realDir);
-
-      let interDir = realDir;
+      // NOTE NOTE: if needed, can keep list of already split points for double split
+      // currently, this will just go to the middle
+      let firstPoint = getSplitPoints(point, (oldDir + 6) % 8)[0];
+      let secondPoint = getSplitPoints(point, (dir + 6) % 8)[0];
+      splitPoints.push(point);
+      let interDir = dir;
       if (interDir === 0) {
         interDir = -10;
       } else {

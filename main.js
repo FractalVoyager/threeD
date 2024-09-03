@@ -68,7 +68,6 @@ const makeTriangles = async (pixelArray, z) => {
     "repeating elements in ordering? " + hasRepeatingElements(ordering)
   );
   writeFile(arrayOfPointsToJSON(ordering, "outline"), "./webViewer/outline.js");
-  return;
   // return;
 
   const oldTrinagles = unOptimizedEarClip(ordering);
