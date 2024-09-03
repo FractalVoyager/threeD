@@ -586,7 +586,7 @@ const outliner = (arr, length) => {
       // }
     }
 
-    return handlePointsAlongLine(ordering);
+    return handlePointsAlongLine(handleAllDuplicates(ordering));
     return ordering;
   };
 
