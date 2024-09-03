@@ -137,8 +137,8 @@ const processCrosses = async () => {
   // const pixelArray = convertByteArrayToPixelArray(data);
   // let problem = await makeTriangles(pixelArray, 0);
   // return;
-  let problem = await makeTriangles(pixelArrs[0], 0);
-  return;
+  // let problem = await makeTriangles(pixelArrs[0], 0);
+  // return;
 
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
