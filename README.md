@@ -1,3 +1,13 @@
+# New plan:
+
+- for each 2d plane, we need to refit the points along the line so every single line has the same number of points
+- In additon to having the same number of points, any two sets of two given points (a0,b0), (a1, b1) the distance between the two will be the same
+- To do this, after each outline of a 2d shape, we count the number of points, and maybe the distance too but not needed
+- then, after all of them, take the shape with the largest number of points, and multiply by 4 or something like that (we want a lot of points)
+- then travel along the line and place all new points
+- then connect with 1:1 mapping
+- this should work and is at least worth a test, will be implemented in this branch
+
 # Plan
 
 ## Backlog:
