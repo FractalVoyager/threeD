@@ -1,6 +1,11 @@
 // arr is array of points that all the black points
 // length is width and height of gird (always square for now)
 // could do this with array of points or twoD array of black and white values, going with two D array of black and white values
+/*
+
+TODO - compute all shapes instead of just throwing out ones under a certain length, very minor verriacton 
+
+*/
 
 const { dir } = require("console");
 

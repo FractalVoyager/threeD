@@ -12,6 +12,8 @@ const {
   arrayOfPointsToJSON,
 } = require("./util/writeFile");
 
+const { recomputePoints } = require("./shapes/recomputePoints");
+
 const { outliner } = require("./shapes/outliner");
 const { earClip, unOptimizedEarClip } = require("./shapes/earClipTriangulate");
 
@@ -142,13 +144,36 @@ const processCrosses = async () => {
 
   const width = Math.sqrt(pixelArrs[0].length);
   const step = Math.floor(width / 3 / pixelArrs.length);
-  const orderings = pixelArrs.map((pixelArr, idx) => {
+  let orderings = pixelArrs.map((pixelArr, idx) => {
     console.log("2d layer: ", idx);
-
     // make 2 d arr
     let twoDPixelArr = pixelArrTo2dPixelArr(pixelArr);
     // return ordering ordering
     return outliner(twoDPixelArr, width);
+  });
+
+  const largestLength = orderings.reduce((acc, ordering) => {
+    if (ordering.length > acc) {
+      return ordering.length;
+    }
+    return acc;
+  }, 0);
+
+  console.log("largest length", largestLength);
+
+  const newNumPoints = largestLength * 8;
+
+  console.log("new num points", newNumPoints);
+
+  const newOrderings = orderings.map((ordering) =>
+    recomputePoints(ordering, newNumPoints)
+  );
+
+  orderings = newOrderings;
+
+  orderings.forEach((ordering) => {
+    console.log(ordering.length);
+    console.log(hasRepeatingElements(ordering));
   });
 
   let allTris = [];
