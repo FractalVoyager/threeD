@@ -53,11 +53,12 @@ const makeStlForTris = (tris) => {
 
 // original one to take list of triangles and make stil out of it
 const makeStlFromTrisList = (trisList) => {
-  let str = "solid name\n";
+  // let str = "solid name\n";
+  let str = "";
   trisList.forEach((tris) => {
     str += makeStlForTris(tris);
   });
-  str += "endsolid name\n";
+  // str += "endsolid name\n";
   return str;
 };
 

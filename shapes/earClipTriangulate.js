@@ -89,6 +89,7 @@ const unOptimizedEarClip = (orderedArr) => {
       orientation(left, clipped, right) === 2 &&
       !hasPointsInside(left, clipped, right)
     ) {
+      // console.log(allRemaining.length);
       tris.push([left, clipped, right]);
       allRemaining.splice(clippedIdx, 1);
       // allRemaining = JSON.parse(

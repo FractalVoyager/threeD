@@ -590,8 +590,8 @@ const outliner = (arr, length) => {
       //   return ordering;
       // }
     }
-
-    return handlePointsAlongLine(handleAllDuplicates(ordering));
+    // return handlePointsAlongLine(handleAllDuplicates(ordering));
+    return handleAllDuplicates(ordering);
     return ordering;
   };
 
@@ -655,4 +655,4 @@ const outliner = (arr, length) => {
   return ordering;
 };
 
-module.exports = { outliner };
+module.exports = { outliner, handlePointsAlongLine };

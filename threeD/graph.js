@@ -89,6 +89,11 @@ class Graph {
   }
 }
 
+const processSimpleGraph = (graph) => {
+  // for the kind of graph we know
+  // the bottom
+};
+
 // once the graph is traingulated, create triangles from graph
 const processGraph = (graph) => {
   let tris = [];

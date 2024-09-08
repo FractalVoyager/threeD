@@ -54,7 +54,7 @@ const recomputePoints = (ordering, newNumPoints) => {
     while (remainingDis >= disPerPoint) {
       newX = ax + t * (bx - ax);
       newY = ay + t * (by - ay);
-      arr.push([ax, ay]);
+      arr.push([newX, newY]);
       ax = newX;
       ay = newY;
       remainingDis -= disPerPoint;

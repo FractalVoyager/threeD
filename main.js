@@ -14,13 +14,14 @@ const {
 
 const { recomputePoints } = require("./shapes/recomputePoints");
 
-const { outliner } = require("./shapes/outliner");
+const { outliner, handlePointsAlongLine } = require("./shapes/outliner");
 const { earClip, unOptimizedEarClip } = require("./shapes/earClipTriangulate");
 
 const { makeStlFromTrisList } = require("./stl/makeStil");
 
-const { createSides } = require("./threeD/createSides");
+// const { createSides } = require("./threeD/createSides");
 
+const { createSides } = require("./connectPlanes/createSides");
 const arraysAreDeepEqual = (arr1, arr2) => {
   if (arr1.length !== arr2.length) {
     return false;
@@ -161,7 +162,9 @@ const processCrosses = async () => {
 
   console.log("largest length", largestLength);
 
-  const newNumPoints = largestLength * 8;
+  // TODO at 1 get weird number of points because the recompute isn't quite right, FIX
+  // was 8
+  const newNumPoints = largestLength * 2;
 
   console.log("new num points", newNumPoints);
 
@@ -169,7 +172,19 @@ const processCrosses = async () => {
     recomputePoints(ordering, newNumPoints)
   );
 
+  // console.log(orderings[0]);
+  // unOptimizedEarClip(orderings[0]);
+  // console.log("new");
+  // console.log(newOrderings[0][]);
+  // unOptimizedEarClip(handlePointsAlongLine(newOrderings[0]));
+  // console.log("done");
+
   orderings = newOrderings;
+  writeFile(
+    arrayOfPointsToJSON(newOrderings[0], "outline"),
+    "./webViewer/outline.js"
+  );
+  // return;
 
   orderings.forEach((ordering) => {
     console.log(ordering.length);
@@ -183,17 +198,17 @@ const processCrosses = async () => {
     let bottom = orderings[i];
     let top = orderings[i + 1];
     let sides = createSides(bottom, top, step * i, step);
-    allTris.push(sides);
+    allTris.push(...sides);
     let tris;
     if (i === 0 || i === orderings.length - 2) {
-      tris = unOptimizedEarClip(i === 0 ? bottom : top);
+      tris = unOptimizedEarClip(handlePointsAlongLine(i === 0 ? bottom : top));
       let z = i === 0 ? 0 : step * (i + 1);
       tris = tris.map((tri) => {
         return tri.map((point) => {
           return [point[0], point[1], z];
         });
       });
-      allTris.push(tris);
+      allTris.push(...tris);
     }
 
     const stlStr = makeStlFromTrisList(allTris);
