@@ -134,7 +134,7 @@ const processFullBinary = async (filePath) => {
 };
 
 const processCrosses = async () => {
-  let pixelArrs = await processFullBinary("./data/curr.bin");
+  let pixelArrs = await processFullBinary("./data/smallTest.bin");
 
   // const data = await readBinaryFile("./data/hardTails.bin");
   // const pixelArray = convertByteArrayToPixelArray(data);
@@ -187,18 +187,23 @@ const processCrosses = async () => {
   // return;
 
   orderings.forEach((ordering) => {
+    // TODO may have to find the right start point that is closest to start point in prev shape and go from there
+    console.log("start point ", ordering[0]);
     console.log(ordering.length);
     console.log(hasRepeatingElements(ordering));
   });
 
-  let allTris = [];
+  // let allTris = [];
+  let str = "solid name\n";
 
   for (let i = 0; i < orderings.length - 1; i++) {
     console.log("3d layer: ", i);
     let bottom = orderings[i];
     let top = orderings[i + 1];
     let sides = createSides(bottom, top, step * i, step);
-    allTris.push(...sides);
+    let tmpStr = makeStlFromTrisList([sides]);
+    str += tmpStr;
+    // allTris.push(...sides);
     let tris;
     if (i === 0 || i === orderings.length - 2) {
       tris = unOptimizedEarClip(handlePointsAlongLine(i === 0 ? bottom : top));
@@ -208,12 +213,14 @@ const processCrosses = async () => {
           return [point[0], point[1], z];
         });
       });
-      allTris.push(...tris);
+      str += makeStlFromTrisList([tris]);
+      // allTris.push(...tris);
     }
-
-    const stlStr = makeStlFromTrisList(allTris);
-    writeFile(stlStr, "./data/stl.stl");
   }
+  str += "endsolid name\n";
+  // const stlStr = makeStlFromTrisList(allTris);
+
+  writeFile(str, "./data/stl.stl");
 
   // const crosses = ["firstSet", "secondSet"].map((name) => {
   //   return await makeTriangles("./data/" + name + ".bin");

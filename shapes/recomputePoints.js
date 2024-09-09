@@ -101,7 +101,11 @@ const recomputePoints = (ordering, newNumPoints) => {
     newPoints.pop();
     return newPoints;
   } else {
-    console.error("weird number of points");
+    console.error("weird number of points", newPoints.length);
+    newPoints.pop();
+    newPoints.pop();
+    newPoints.pop();
+    return newPoints;
   }
 };
 
